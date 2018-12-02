@@ -1,15 +1,17 @@
 import React from 'react';
+import { GiftWrapping } from '../algorithms/gift-wrapping';
+import { useWindowSize } from '../hooks/use-window-size';
+import { Point } from '../models/point';
+import { MultiPointLine } from './multi-point-line';
 
 interface ConvexHullVisualizationProps {
 }
 
 export const ConvexHullVisualization: React.FunctionComponent<ConvexHullVisualizationProps> = () => {
-  const points = [
-    { x: 100, y: 200 },
-    { x: 300, y: 220 },
-    { x: 400, y: 300 },
-    { x: 100, y: 340 },
-  ];
+  const { width, height } = useWindowSize();
+  const points = generateRandomPoints(width, height);
+  const convexHull = new GiftWrapping().calculateConvexHull(points);
+
   return (
     <g>
       {points.map(point => (
@@ -21,6 +23,26 @@ export const ConvexHullVisualization: React.FunctionComponent<ConvexHullVisualiz
           cy={point.y}
         />
       ))}
+      <MultiPointLine points={convexHull.points}/>
     </g>
   );
 };
+
+function generateRandomPoints(width: number, height: number): Point[] {
+  return createArray(20).map(() => generateRandomPoint(width, height));
+}
+
+function generateRandomPoint(width: number, height: number): Point {
+  return {
+    x: Math.random() * width,
+    y: Math.random() * height,
+  }
+}
+
+function createArray(size: number): number[] {
+  const arr = new Array(size);
+  for (let i = 0; i < size; i++) {
+    arr[i] = i;
+  }
+  return arr;
+}
