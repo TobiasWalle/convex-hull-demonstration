@@ -1,5 +1,4 @@
 import React from 'react';
-import { Circle, Layer } from 'react-konva';
 
 interface ConvexHullVisualizationProps {
 }
@@ -12,15 +11,16 @@ export const ConvexHullVisualization: React.FunctionComponent<ConvexHullVisualiz
     { x: 100, y: 340 },
   ];
   return (
-    <Layer>
+    <g>
       {points.map(point => (
-        <Circle
-          radius={3}
+        <circle
+          key={`${point.x}-${point.y}`}
+          r={3}
           fill="black"
-          x={point.x}
-          y={point.y}
+          cx={point.x}
+          cy={point.y}
         />
       ))}
-    </Layer>
+    </g>
   );
 };

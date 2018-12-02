@@ -25,10 +25,8 @@
     ]
   },
   "dependencies": {
-    "konva": "^2.5.1",
     "react": "^16.7.0-alpha.2",
     "react-dom": "^16.7.0-alpha.2",
-    "react-konva": "^16.6.31",
     "ts-debounce": "^1.0.0",
     "tslib": "^1.9.3"
   }
