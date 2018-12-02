@@ -14,7 +14,7 @@ export const MultiPointLine: React.FunctionComponent<MultiPointLineProps> = ({ p
         y1={p1.y}
         x2={p2.x}
         y2={p2.y}
-        stroke="red"
+        stroke="#373737"
       />
     ))}
   </>
