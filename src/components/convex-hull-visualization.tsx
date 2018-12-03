@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useReducer, useState } from 'react';
 import { AbstractAlgorithmType } from '../algorithms/abstract-algorithm';
 import { ConvexHull } from '../models/convext-hull';
 import { Point } from '../models/point';
+import { makePromiseCancable } from '../utils/promise';
 import { MultiPointLine } from './multi-point-line';
 
 interface ConvexHullVisualizationProps {
@@ -11,27 +12,44 @@ interface ConvexHullVisualizationProps {
   height: number;
 }
 
-export const ConvexHullVisualization: React.FunctionComponent<ConvexHullVisualizationProps> = ({ points, algorithm, width, height }) => {
+export const ConvexHullVisualization: React.FunctionComponent<ConvexHullVisualizationProps> = ({ points, algorithm: Algorithmn, width, height }) => {
   const [markedPoints, {
     add: addMarkedPoint,
-    remove: removeMarkedPoint
+    remove: removeMarkedPoint,
+    reset: resetMarkedPoints
   }] = useSetReducer();
   const [selectedPoints, {
     add: addSelectedPoint,
-    remove: removeSelectedPoint
+    remove: removeSelectedPoint,
+    reset: resetSelectedPoint
   }] = useSetReducer();
 
   const [convexHull, setConvexHull] = useState<ConvexHull | null>(null);
   useEffect(
     () => {
       setConvexHull(null);
-      new algorithm(
+      const algorithmn = new Algorithmn(
         setConvexHull,
         addMarkedPoint,
         removeMarkedPoint,
         addSelectedPoint,
         removeSelectedPoint
-      ).calculateConvexHull(points).then(setConvexHull)
+      );
+      const [promise, cancel] = makePromiseCancable(algorithmn.calculateConvexHull(points));
+      promise
+        .then(setConvexHull)
+        .catch(error => {
+          if (error) {
+            console.error(error);
+          }
+        })
+      ;
+      return () => {
+        cancel();
+        algorithmn.cancel();
+        resetMarkedPoints();
+        resetSelectedPoint();
+      }
     },
     [points]
   );
@@ -48,7 +66,7 @@ export const ConvexHullVisualization: React.FunctionComponent<ConvexHullVisualiz
         return (
           <circle
             key={`${point.x}-${point.y}`}
-            r={isMarked || isSelected? 6 : 3}
+            r={isMarked || isSelected ? 6 : 3}
             fill={
               isMarked ? markedColor
                 : isSelected ? selectedColor
@@ -74,16 +92,24 @@ interface RemoveItemAction<T> {
   item: T;
 }
 
-type SetActions<T> = AddItemAction<T> | RemoveItemAction<T>;
+interface ResetAction {
+  type: 'RESET'
+}
+
+type SetActions<T> = AddItemAction<T> | RemoveItemAction<T> | ResetAction;
 
 function setReducer<T>(set: Set<T>, action: SetActions<T>): Set<T> {
-  set = new Set(set);
   switch (action.type) {
     case 'ADD':
+      set = new Set(set);
       set.add(action.item);
       break;
     case 'DELETE':
+      set = new Set(set);
       set.delete(action.item);
+      break;
+    case 'RESET':
+      set = new Set();
       break;
   }
   return set;
@@ -91,10 +117,11 @@ function setReducer<T>(set: Set<T>, action: SetActions<T>): Set<T> {
 
 type ItemDispatch<T> = (item: T) => void;
 
-function useSetReducer<T>(initialSet: Set<T> = new Set()): [Set<T>, { add: ItemDispatch<T>, remove: ItemDispatch<T> }] {
+function useSetReducer<T>(initialSet: Set<T> = new Set()): [Set<T>, { add: ItemDispatch<T>, remove: ItemDispatch<T>, reset: () => void }] {
   const [set, dispatch] = useReducer<Set<T>, SetActions<T>>(setReducer, initialSet);
   const add = useCallback((item: T) => dispatch({ type: 'ADD', item }), []);
   const remove = useCallback((item: T) => dispatch({ type: 'DELETE', item }), []);
-  return [set, { add, remove }];
+  const reset = useCallback(() => dispatch({ type: 'RESET' }), []);
+  return [set, { add, remove, reset }];
 }
 

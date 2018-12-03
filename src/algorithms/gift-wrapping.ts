@@ -19,11 +19,13 @@ export class GiftWrapping extends AbstractAlgorithm {
           endPoint === pointOnHull
           || isLeftOfLine(points[j], [pointOnHull, endPoint])
         ) {
+          await this.unmarkPointAsSelected(endPoint);
           endPoint = points[j];
+          await this.markPointAsSelected(endPoint);
         }
         await this.unmarkPointAsActive(points[j]);
       }
-      await this.markPointAsSelected(endPoint);
+      await this.unmarkPointAsSelected(endPoint);
       pointOnHull = endPoint;
     } while (endPoint !== convextHull.points[0]);
     return convextHull;
