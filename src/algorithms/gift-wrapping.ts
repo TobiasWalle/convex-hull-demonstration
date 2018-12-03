@@ -4,25 +4,29 @@ import { Point } from '../models/point';
 import { AbstractAlgorithm } from './abstract-algorithm';
 
 export class GiftWrapping extends AbstractAlgorithm {
-  public calculateConvexHull(points: Point[]): ConvexHull {
-    const hull: Point[] = [];
+  public async calculateConvexHull(points: Point[]): Promise<ConvexHull> {
+    const convextHull: ConvexHull = { points: [] };
     let pointOnHull = getLeftMostPoint(points);
     let endPoint: Point;
     do {
-      hull.push(pointOnHull);
+      convextHull.points.push(pointOnHull);
+      await this.updateConvexHull(convextHull);
       endPoint = points[0];
+      await this.markPointAsSelected(endPoint);
       for (let j = 1; j < points.length; j++) {
+        await this.markPointAsActive(points[j]);
         if (
           endPoint === pointOnHull
           || isLeftOfLine(points[j], [pointOnHull, endPoint])
         ) {
           endPoint = points[j];
         }
+        await this.unmarkPointAsActive(points[j]);
       }
-
+      await this.markPointAsSelected(endPoint);
       pointOnHull = endPoint;
-    } while (endPoint !== hull[0]);
-    return { points: hull };
+    } while (endPoint !== convextHull.points[0]);
+    return convextHull;
   }
 }
 

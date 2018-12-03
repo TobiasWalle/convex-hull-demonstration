@@ -1,9 +1,8 @@
 import styled from '@emotion/styled';
 import React, { useCallback, useMemo, useState } from 'react';
 import { algorithms } from '../algorithms';
-import { AbstractAlgorithm } from '../algorithms/abstract-algorithm';
+import { AbstractAlgorithmType } from '../algorithms/abstract-algorithm';
 import { GiftWrapping } from '../algorithms/gift-wrapping';
-import { Type } from '../types/type';
 import { generateRandomPoint, generateRandomPoints } from '../utils/random';
 import { Button } from './button';
 import { ConvexHullVisualization } from './convex-hull-visualization';
@@ -18,7 +17,7 @@ export const App: React.FunctionComponent<AppProps> = () => {
   let [points, setPoints] = useState(generateRandomPoints(5, width, height));
   const [{ algorithm }, setAlgorithm] = useState({ algorithm: GiftWrapping });
 
-  type AlgorithmOption = [string, Type<AbstractAlgorithm>];
+  type AlgorithmOption = [string, AbstractAlgorithmType];
   const algorithmOptions: AlgorithmOption[] = useMemo(
     () => Object.keys(algorithms).map((key): AlgorithmOption =>
       [key, algorithms[key]]
