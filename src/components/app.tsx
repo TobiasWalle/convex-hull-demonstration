@@ -12,8 +12,8 @@ interface AppProps {
 }
 
 export const App: React.FunctionComponent<AppProps> = () => {
-  const width = 500;
-  const height = 500;
+  const width = 800;
+  const height = 800;
   let [points, setPoints] = useState(generateRandomPoints(5, width, height));
   const [{ algorithm }, setAlgorithm] = useState({ algorithm: GiftWrapping });
 

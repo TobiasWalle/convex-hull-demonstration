@@ -2,7 +2,8 @@ import { ConvexHull } from '../models/convext-hull';
 import { Point } from '../models/point';
 import { Type } from '../types/type';
 
-export type MarkPoint = (point: Point) => void;
+export type MarkPoint = (point: Point, color: string, text?: string) => void;
+export type UnmarkPoint = (point: Point, color: string) => void;
 
 export type UpdateConvexHull = (ch: ConvexHull) => void;
 
@@ -12,10 +13,8 @@ export abstract class AbstractAlgorithm {
 
   constructor(
     private onUpdateConvexHull: UpdateConvexHull,
-    private onMarkPointAsActive: MarkPoint,
-    private onUnmarkPointAsActive: MarkPoint,
-    private onMarkPointAsSelected: MarkPoint,
-    private onUnmarkPointAsSelected: MarkPoint
+    private onMarkPoint: MarkPoint,
+    private onUnmarkPoint: UnmarkPoint,
   ) {
   }
 
@@ -25,40 +24,35 @@ export abstract class AbstractAlgorithm {
     this.cancelled = true;
   }
 
-  private async tick() {
-    if (this.cancelled) {
-      throw undefined;
-    }
-    await timeout(this.TIMEOUT);
-  }
-
   protected async updateConvexHull(convexHull: ConvexHull): Promise<void> {
     await this.tick();
     this.onUpdateConvexHull(convexHull);
   }
 
-  protected async markPointAsActive(point: Point): Promise<void> {
+  protected async markPoint(point: Point, color: string, text?: string): Promise<void> {
     await this.tick();
-    this.onMarkPointAsActive(point);
+    this.onMarkPoint(point, color, text);
   }
 
-  protected async unmarkPointAsActive(point: Point): Promise<void> {
+  protected async unmarkPoint(point: Point, color: string): Promise<void> {
     await this.tick();
-    this.onUnmarkPointAsActive(point);
+    this.onUnmarkPoint(point, color);
   }
 
-  protected async markPointAsSelected(point: Point): Promise<void> {
-    await this.tick();
-    this.onMarkPointAsSelected(point);
+  private async tick() {
+    this.checkIfCancelled();
+    await timeout(this.TIMEOUT);
+    this.checkIfCancelled();
   }
 
-  protected async unmarkPointAsSelected(point: Point): Promise<void> {
-    await this.tick();
-    this.onUnmarkPointAsSelected(point);
+  private checkIfCancelled() {
+    if (this.cancelled) {
+      throw undefined;
+    }
   }
 }
 
-export type AbstractAlgorithmType = Type<AbstractAlgorithm, [UpdateConvexHull, MarkPoint, MarkPoint, MarkPoint, MarkPoint]>
+export type AbstractAlgorithmType = Type<AbstractAlgorithm, [UpdateConvexHull, MarkPoint, UnmarkPoint]>
 
 function timeout(ms: number): Promise<void> {
   return new Promise(resolve => {
