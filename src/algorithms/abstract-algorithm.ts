@@ -11,12 +11,14 @@ export abstract class AbstractAlgorithm {
   public abstract complexity: string;
 
   private cancelled = false;
+  private _continue?: () => void;
 
   constructor(
     private onUpdateConvexHull: UpdateConvexHull,
     private onMarkPoint: MarkPoint,
     private onUnmarkPoint: UnmarkPoint,
-    private timeout = 200
+    private timeout = 200,
+    private auto = true
   ) {
   }
 
@@ -24,6 +26,10 @@ export abstract class AbstractAlgorithm {
 
   public cancel(): void {
     this.cancelled = true;
+  }
+
+  public continue(): void {
+    this._continue && this._continue();
   }
 
   protected async updateConvexHull(convexHull: ConvexHull): Promise<void> {
@@ -43,7 +49,11 @@ export abstract class AbstractAlgorithm {
 
   private async tick() {
     this.checkIfCancelled();
-    await timeout(this.timeout);
+    if (this.auto) {
+      await timeout(this.timeout);
+    } else {
+      await new Promise(resolve => this._continue = resolve);
+    }
     this.checkIfCancelled();
   }
 
@@ -54,7 +64,7 @@ export abstract class AbstractAlgorithm {
   }
 }
 
-export type AbstractAlgorithmType<T extends AbstractAlgorithm = AbstractAlgorithm> = Type<T, [UpdateConvexHull, MarkPoint, UnmarkPoint, number?]>
+export type AbstractAlgorithmType<T extends AbstractAlgorithm = AbstractAlgorithm> = Type<T, [UpdateConvexHull, MarkPoint, UnmarkPoint, number?, boolean?]>
 
 function timeout(ms: number): Promise<void> {
   return new Promise(resolve => {

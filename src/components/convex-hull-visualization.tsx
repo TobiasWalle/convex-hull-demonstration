@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
-import React, { useEffect, useState } from 'react';
-import { AbstractAlgorithmType } from '../algorithms/abstract-algorithm';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { AbstractAlgorithm, AbstractAlgorithmType } from '../algorithms/abstract-algorithm';
 import { useMarker } from '../hooks/use-marker';
 import { COLORS } from '../models/colors';
 import { ConvexHull } from '../models/convext-hull';
@@ -23,17 +23,21 @@ export const ConvexHullVisualization: React.FunctionComponent<ConvexHullVisualiz
     getText: getPointText,
     isMarked: isPointMarked,
   } = useMarker((point: Point) => `${point.x}|${point.y}`);
-
   const [convexHull, setConvexHull] = useState<ConvexHull | null>(null);
+  const [auto, setAuto] = useState(false);
+  const algorithmnRef = useRef<AbstractAlgorithm | null>(null);
+
   useEffect(
     () => {
       setConvexHull(null);
-      const algorithmn = new Algorithmn(
+      algorithmnRef.current = new Algorithmn(
         setConvexHull,
         markPoint,
         unmarkPoint,
+        undefined,
+        auto
       );
-      algorithmn.calculateConvexHull(points)
+      algorithmnRef.current!.calculateConvexHull(points)
         .then(setConvexHull)
         .catch(error => {
           if (error) {
@@ -42,38 +46,54 @@ export const ConvexHullVisualization: React.FunctionComponent<ConvexHullVisualiz
         })
       ;
       return () => {
-        algorithmn.cancel();
+        algorithmnRef.current!.cancel();
         resetPointMarkers();
       }
     },
-    [points, Algorithmn]
+    [points, Algorithmn, auto]
   );
 
   return (
-    <svg width={width} height={height}>
-      {points.map(point => {
-        const radius = isPointMarked(point) ? 6 : 3;
-        const text = getPointText(point);
-        const textOffset = radius * .8;
-        return (
-          <g
-            key={`${point.x}-${point.y}`}
-          >
-            <Circle
-              r={radius}
-              fill={getPointColor(point) || COLORS.GREY}
-              cx={point.x}
-              cy={point.y}
-            />
-            <Text
-              x={point.x + textOffset + 5}
-              y={point.y + textOffset}
-            >{text}</Text>
-          </g>
-        );
-      })}
-      {convexHull && <MultiPointLine points={convexHull.points}/>}
-    </svg>
+    <div>
+      <div>
+        <label>
+          <input
+            type="checkbox"
+            checked={auto}
+            onChange={event => setAuto((event.target as any).checked)}
+          />
+          Auto
+        </label>
+        <button
+          onClick={useCallback(() => algorithmnRef.current && algorithmnRef.current.continue(), [algorithmnRef])}
+        >Continue
+        </button>
+      </div>
+      <svg width={width} height={height}>
+        {points.map(point => {
+          const radius = isPointMarked(point) ? 6 : 3;
+          const text = getPointText(point);
+          const textOffset = radius * .8;
+          return (
+            <g
+              key={`${point.x}-${point.y}`}
+            >
+              <Circle
+                r={radius}
+                fill={getPointColor(point) || COLORS.GREY}
+                cx={point.x}
+                cy={point.y}
+              />
+              <Text
+                x={point.x + textOffset + 5}
+                y={point.y + textOffset}
+              >{text}</Text>
+            </g>
+          );
+        })}
+        {convexHull && <MultiPointLine points={convexHull.points}/>}
+      </svg>
+    </div>
   );
 };
 
