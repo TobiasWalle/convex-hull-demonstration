@@ -3,8 +3,11 @@ import { ConvexHull } from '../models/convext-hull';
 import { Line } from '../models/line';
 import { Point } from '../models/point';
 import { AbstractAlgorithm } from './abstract-algorithm';
+import { getAngleInDegrees } from './general.utils';
 
 export class GiftWrapping extends AbstractAlgorithm {
+  public complexity = "O(nh)";
+
   public async calculateConvexHull(points: Point[]): Promise<ConvexHull> {
     const convextHull: ConvexHull = { points: [] };
     let pointOnHull = getLeftMostPoint(points);
@@ -64,10 +67,3 @@ function substractDegree(a1: number, a2: number): number {
   return result;
 }
 
-function getAngleInDegrees(p1: Point, p2: Point) {
-  return getAngleInRadians(p1, p2) * (180 / Math.PI);
-}
-
-function getAngleInRadians(p1: Point, p2: Point): number {
-  return Math.atan2(p2.y - p1.y, p2.x - p1.x);
-}

@@ -24,38 +24,40 @@ interface Marker {
   text?: string;
 }
 
-type MarkerMap<T> = Map<T, Marker[]>;
+type MarkerMap<K> = Map<K, Marker[]>;
 
-function markerReducer<T>(map: MarkerMap<T>, action: MarkerActions<T>): MarkerMap<T> {
-  switch (action.type) {
-    case 'MARK': {
-      map = new Map(map);
-      const markers = map.get(action.item) || [];
-      const newMarker = {
-        color: action.color,
-        text: action.text
-      };
-      map.set(action.item, [newMarker, ...markers]);
-      break;
-    }
-    case 'UNMARK': {
-      map = new Map(map);
-      const markers = (map.get(action.item) || []).slice();
-      const index = markers.findIndex(({ color }) => color === action.color);
-      markers.splice(index, 1);
-      if (markers.length === 0) {
-        map.delete(action.item);
-      } else {
-        map.set(action.item, markers);
+function createMarkerReducer<T, K>(toKey: (item: T) => K) {
+  return function markerReducer(map: MarkerMap<K>, action: MarkerActions<T>): MarkerMap<K> {
+    switch (action.type) {
+      case 'MARK': {
+        map = new Map(map);
+        const markers = map.get(toKey(action.item)) || [];
+        const newMarker = {
+          color: action.color,
+          text: action.text
+        };
+        map.set(toKey(action.item), [newMarker, ...markers]);
+        break;
       }
-      break;
+      case 'UNMARK': {
+        map = new Map(map);
+        const markers = (map.get(toKey(action.item)) || []).slice();
+        const index = markers.findIndex(({ color }) => color === action.color);
+        markers.splice(index, 1);
+        if (markers.length === 0) {
+          map.delete(toKey(action.item));
+        } else {
+          map.set(toKey(action.item), markers);
+        }
+        break;
+      }
+      case 'RESET': {
+        map = new Map();
+        break;
+      }
     }
-    case 'RESET': {
-      map = new Map();
-      break;
-    }
+    return map;
   }
-  return map;
 }
 
 type MarkItemDispatch<T> = (item: T, color: string, text?: string) => void;
@@ -70,26 +72,34 @@ interface MarkerDispatcher<T> {
   isMarked: (item: T) => boolean;
 }
 
-export function useMarker<T>(): MarkerDispatcher<T> {
-  const [map, dispatch] = useReducer<MarkerMap<T>, MarkerActions<T>>(markerReducer, new Map());
+export function useMarker<T, K>(toKey: (item: T) => K): MarkerDispatcher<T> {
+  const [map, dispatch] = useReducer<MarkerMap<K>, MarkerActions<T>>(
+    createMarkerReducer(toKey),
+    new Map()
+  );
 
-  const add: MarkItemDispatch<T> = useCallback((item, color, text) => dispatch({ type: 'MARK', item, color, text }), []);
+  const add: MarkItemDispatch<T> = useCallback((item, color, text) => dispatch({
+    type: 'MARK',
+    item,
+    color,
+    text
+  }), []);
 
   const remove: UnmarkItemDispatch<T> = useCallback((item, color) => dispatch({ type: 'UNMARK', item, color }), []);
 
   const reset = useCallback(() => dispatch({ type: 'RESET' }), []);
 
   const getColor = useCallback((item: T) => {
-    const marker = (map.get(item) || [])[0];
+    const marker = (map.get(toKey(item)) || [])[0];
     return marker && marker.color;
   }, [map]);
 
   const getText = useCallback((item: T) => {
-    const marker = (map.get(item) || [])[0];
+    const marker = (map.get(toKey(item)) || [])[0];
     return marker && marker.text;
   }, [map]);
 
-  const isMarked = useCallback((item: T) => !!map.get(item), [map]);
+  const isMarked = useCallback((item: T) => !!map.get(toKey(item)), [map]);
 
   return { add, remove, reset, getColor, isMarked, getText };
 }

@@ -8,13 +8,15 @@ export type UnmarkPoint = (point: Point, color: string) => void;
 export type UpdateConvexHull = (ch: ConvexHull) => void;
 
 export abstract class AbstractAlgorithm {
-  private TIMEOUT = 200;
+  public abstract complexity: string;
+
   private cancelled = false;
 
   constructor(
     private onUpdateConvexHull: UpdateConvexHull,
     private onMarkPoint: MarkPoint,
     private onUnmarkPoint: UnmarkPoint,
+    private timeout = 200
   ) {
   }
 
@@ -25,23 +27,23 @@ export abstract class AbstractAlgorithm {
   }
 
   protected async updateConvexHull(convexHull: ConvexHull): Promise<void> {
-    await this.tick();
     this.onUpdateConvexHull(convexHull);
+    await this.tick();
   }
 
   protected async markPoint(point: Point, color: string, text?: string): Promise<void> {
-    await this.tick();
     this.onMarkPoint(point, color, text);
+    await this.tick();
   }
 
   protected async unmarkPoint(point: Point, color: string): Promise<void> {
-    await this.tick();
     this.onUnmarkPoint(point, color);
+    await this.tick();
   }
 
   private async tick() {
     this.checkIfCancelled();
-    await timeout(this.TIMEOUT);
+    await timeout(this.timeout);
     this.checkIfCancelled();
   }
 
@@ -52,7 +54,7 @@ export abstract class AbstractAlgorithm {
   }
 }
 
-export type AbstractAlgorithmType = Type<AbstractAlgorithm, [UpdateConvexHull, MarkPoint, UnmarkPoint]>
+export type AbstractAlgorithmType<T extends AbstractAlgorithm = AbstractAlgorithm> = Type<T, [UpdateConvexHull, MarkPoint, UnmarkPoint, number?]>
 
 function timeout(ms: number): Promise<void> {
   return new Promise(resolve => {

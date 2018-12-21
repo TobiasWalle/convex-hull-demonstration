@@ -22,7 +22,7 @@ export const ConvexHullVisualization: React.FunctionComponent<ConvexHullVisualiz
     getColor: getPointColor,
     getText: getPointText,
     isMarked: isPointMarked,
-  } = useMarker<Point>();
+  } = useMarker((point: Point) => `${point.x}|${point.y}`);
 
   const [convexHull, setConvexHull] = useState<ConvexHull | null>(null);
   useEffect(
@@ -46,7 +46,7 @@ export const ConvexHullVisualization: React.FunctionComponent<ConvexHullVisualiz
         resetPointMarkers();
       }
     },
-    [points]
+    [points, Algorithmn]
   );
 
   return (
