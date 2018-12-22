@@ -12,9 +12,18 @@ interface ConvexHullVisualizationProps {
   algorithm: AbstractAlgorithmType;
   width: number;
   height: number;
+  manuelModeActivated: boolean;
+  getContinueAlgorithmFn: (continueAlgorithm: () => void) => void;
 }
 
-export const ConvexHullVisualization: React.FunctionComponent<ConvexHullVisualizationProps> = ({ points, algorithm: Algorithmn, width, height }) => {
+export const ConvexHullVisualization: React.FunctionComponent<ConvexHullVisualizationProps> = ({
+  points,
+  algorithm: Algorithm,
+  width,
+  height,
+  getContinueAlgorithmFn: setContinueAlgorithmFn,
+  manuelModeActivated
+}) => {
   const {
     add: markPoint,
     remove: unmarkPoint,
@@ -24,20 +33,18 @@ export const ConvexHullVisualization: React.FunctionComponent<ConvexHullVisualiz
     isMarked: isPointMarked,
   } = useMarker((point: Point) => `${point.x}|${point.y}`);
   const [convexHull, setConvexHull] = useState<ConvexHull | null>(null);
-  const [auto, setAuto] = useState(false);
-  const algorithmnRef = useRef<AbstractAlgorithm | null>(null);
-
   useEffect(
     () => {
       setConvexHull(null);
-      algorithmnRef.current = new Algorithmn(
+      const algorithm = new Algorithm(
         setConvexHull,
         markPoint,
         unmarkPoint,
         undefined,
-        auto
+        !manuelModeActivated
       );
-      algorithmnRef.current!.calculateConvexHull(points)
+      setContinueAlgorithmFn(() => algorithm.continue());
+      algorithm.calculateConvexHull(points)
         .then(setConvexHull)
         .catch(error => {
           if (error) {
@@ -46,29 +53,15 @@ export const ConvexHullVisualization: React.FunctionComponent<ConvexHullVisualiz
         })
       ;
       return () => {
-        algorithmnRef.current!.cancel();
+        algorithm.cancel();
         resetPointMarkers();
       }
     },
-    [points, Algorithmn, auto]
+    [points, Algorithm, manuelModeActivated, setContinueAlgorithmFn]
   );
 
   return (
     <div>
-      <div>
-        <label>
-          <input
-            type="checkbox"
-            checked={auto}
-            onChange={event => setAuto((event.target as any).checked)}
-          />
-          Auto
-        </label>
-        <button
-          onClick={useCallback(() => algorithmnRef.current && algorithmnRef.current.continue(), [algorithmnRef])}
-        >Continue
-        </button>
-      </div>
       <svg width={width} height={height}>
         {points.map(point => {
           const radius = isPointMarked(point) ? 6 : 3;

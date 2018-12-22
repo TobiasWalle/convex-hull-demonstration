@@ -119,3 +119,4 @@ fabric.properties
 .idea
 dist
 .cache
+.DS_Store

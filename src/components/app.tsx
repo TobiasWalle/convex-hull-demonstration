@@ -1,12 +1,14 @@
 import styled from '@emotion/styled';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { algorithms } from '../algorithms';
 import { AbstractAlgorithmType } from '../algorithms/abstract-algorithm';
 import { GiftWrapping } from '../algorithms/gift-wrapping';
+import { useFunctionState } from '../hooks/use-function-state';
 import { generateRandomPoint, generateRandomPoints } from '../utils/random';
 import { Button } from './button';
 import { ConvexHullVisualization } from './convex-hull-visualization';
 import { Select } from './select';
+import { Toggle } from './toggle';
 
 interface AppProps {
 }
@@ -16,6 +18,7 @@ export const App: React.FunctionComponent<AppProps> = () => {
   const height = 800;
   let [points, setPoints] = useState(generateRandomPoints(5, width, height));
   const [{ algorithm }, setAlgorithm] = useState({ algorithm: GiftWrapping });
+  const [manuelModeActivated, setManuelModeActivated] = useState(true);
 
   type AlgorithmOption = [string, AbstractAlgorithmType];
   const algorithmOptions: AlgorithmOption[] = useMemo(
@@ -39,6 +42,8 @@ export const App: React.FunctionComponent<AppProps> = () => {
     setPoints([...points, generateRandomPoint(width, height)]);
   }, [width, height, points]);
 
+  let [handleContinue, setHandleContinue] = useFunctionState(() => {});
+
   return (
     <div>
       <Controls>
@@ -49,6 +54,11 @@ export const App: React.FunctionComponent<AppProps> = () => {
           onSelect={handleSelect}
           renderOption={renderOption}
         />
+        <Button onClick={handleContinue}>Continue</Button>
+        <Toggle
+          value={manuelModeActivated}
+          onChange={setManuelModeActivated}
+        >Manuel</Toggle>
       </Controls>
       <VisualizationWrapper>
         <ConvexHullVisualization
@@ -56,6 +66,8 @@ export const App: React.FunctionComponent<AppProps> = () => {
           height={height}
           points={points}
           algorithm={algorithm}
+          manuelModeActivated={manuelModeActivated}
+          getContinueAlgorithmFn={setHandleContinue}
         />
       </VisualizationWrapper>
     </div>

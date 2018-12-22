@@ -1,39 +1,9 @@
 import { COLORS } from '../models/colors';
 import { ConvexHull } from '../models/convext-hull';
 import { Point } from '../models/point';
+import { Stack } from '../models/stack';
+import { swap } from '../utils/array';
 import { AbstractAlgorithm } from './abstract-algorithm';
-
-class Stack<T> {
-  private content: T[] = [];
-
-  get length() {
-    return this.content.length;
-  }
-
-  private get lastIndex() {
-    return this.content.length - 1;
-  }
-
-  public push(v: T) {
-    this.content.push(v);
-  }
-
-  public pop(): T {
-    return this.content.splice(this.lastIndex, 1)[0];
-  }
-
-  public get top(): T {
-    return this.content[this.lastIndex];
-  }
-
-  public get secondTop(): T {
-    return this.content[this.lastIndex - 1];
-  }
-
-  public asArray() {
-    return this.content;
-  }
-}
 
 export class GrahamScan extends AbstractAlgorithm {
   complexity = "O(n log n)";
@@ -113,12 +83,6 @@ function calculateDistance(a: Point, b: Point): number {
 
 function calculatePolarAngle(a: Point, b: Point): number {
   return Math.abs(Math.atan2((a.y - b.y), (a.x - b.x)));
-}
-
-function swap<T>(array: T[], i: number, j: number): void {
-  const temp = array[i];
-  array[i] = array[j];
-  array[j] = temp;
 }
 
 function getDirection(p1: Point, p2: Point, p3: Point): Direction {
