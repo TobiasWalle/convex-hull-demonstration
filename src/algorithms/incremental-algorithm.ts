@@ -4,7 +4,9 @@ import { AbstractAlgorithm } from './abstract-algorithm';
 export class IncrementalAlgorithm extends AbstractAlgorithm<Circle> {
   public complexity: string = "O(n log n)";
 
-  async calculateConvexHull(points: Circle[]) {
-    return { arcs: [] };
+  async calculateConvexHull(circles: Circle[]) {
+    return {
+      arcs: []
+    };
   }
 }

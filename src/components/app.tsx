@@ -19,10 +19,10 @@ interface AppProps {
 }
 
 export const App: React.FunctionComponent<AppProps> = () => {
-  const shapeType = ShapeType.Point;
+  const shapeType: ShapeType = ShapeType.Circle;
   const algorithms = algorithmsByType[shapeType];
-  const width = 800;
-  const height = 800;
+  const width = 400;
+  const height = 400;
 
   const {
     shapes,
@@ -68,7 +68,7 @@ export const App: React.FunctionComponent<AppProps> = () => {
         >Manuel</Toggle>
       </Controls>
       <VisualizationWrapper>
-        <ConvexHullVisualization
+        <ConvexHullVisualization<Shape>
           width={width}
           height={height}
           shapes={shapes}

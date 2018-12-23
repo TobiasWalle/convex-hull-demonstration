@@ -2,10 +2,12 @@ import styled from '@emotion/styled';
 import React, { useEffect, useState } from 'react';
 import { AbstractAlgorithm, AbstractAlgorithmType } from '../algorithms/abstract-algorithm';
 import { useMarker } from '../hooks/use-marker';
+import { Circle } from '../models/circle';
 import { COLORS } from '../models/colors';
 import { isCircleConvexHull, UnknownConvexHull } from '../models/convext-hull';
 import { Point } from '../models/point';
 import { isShapeCircle, isShapePoint, Shape } from '../models/shape';
+import { CircleConvexHullVisualization } from './circle-convex-hull-visualization';
 import { MultiPointLine } from './multi-point-line';
 
 interface ConvexHullVisualizationProps<S extends Shape> {
@@ -69,10 +71,18 @@ export const ConvexHullVisualization = <S extends Shape>({
           const color = getPointColor(shape) || COLORS.GREY;
           const text = getPointText(shape);
           if (isShapeCircle(shape)) {
-            return <Text x={shape.x} y={shape.y}>Circle</Text>
+            return (
+              <CircleVisualization
+                key={`${shape.x}-${shape.y}`}
+                circle={shape}
+                isMarked={isMarked}
+                text={text}
+                color={color}
+              />
+            );
           } else if (isShapePoint(shape)) {
             return (
-              <PointVisulization
+              <PointVisualization
                 key={`${shape.x}-${shape.y}`}
                 point={shape}
                 isMarked={isMarked}
@@ -84,7 +94,7 @@ export const ConvexHullVisualization = <S extends Shape>({
         })}
         {convexHull && (
           isCircleConvexHull(convexHull)
-          ? <g/>
+          ? <CircleConvexHullVisualization hull={convexHull}/>
           : <MultiPointLine points={convexHull.points}/>
         )
         }
@@ -108,7 +118,7 @@ interface PointVisualizationProps {
   text?: string;
 }
 
-const PointVisulization = ({
+const PointVisualization = ({
   point,
   isMarked,
   text,
@@ -127,6 +137,38 @@ const PointVisulization = ({
       <Text
         x={point.x + textOffset + 5}
         y={point.y + textOffset}
+      >{text}</Text></g>
+  );
+};
+
+interface CircleVisualizationProps {
+  circle: Circle;
+  isMarked: boolean;
+  color?: string;
+  text?: string;
+}
+
+const CircleVisualization = ({
+  circle,
+  isMarked,
+  text,
+  color
+}: CircleVisualizationProps) => {
+  const radius = circle.radius;
+  const textOffset = radius * .8;
+  return (
+    <g>
+      <Circle
+        r={radius}
+        fill="transparent"
+        stroke={color}
+        strokeWidth={1}
+        cx={circle.x}
+        cy={circle.y}
+      />
+      <Text
+        x={circle.x + textOffset + 5}
+        y={circle.y + textOffset}
       >{text}</Text></g>
   );
 };
