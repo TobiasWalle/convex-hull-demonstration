@@ -5,7 +5,7 @@ import { Point } from '../models/point';
 import { AbstractAlgorithm } from './abstract-algorithm';
 import { getAngleInDegrees } from './general.utils';
 
-export class GiftWrapping extends AbstractAlgorithm {
+export class GiftWrapping extends AbstractAlgorithm<Point> {
   public complexity = "O(nh)";
 
   public async calculateConvexHull(points: Point[]): Promise<ConvexHull> {
@@ -14,24 +14,24 @@ export class GiftWrapping extends AbstractAlgorithm {
     let endPoint: Point;
     do {
       convextHull.points.push(pointOnHull);
-      await this.markPoint(pointOnHull, COLORS.GREEN, 'Added');
+      await this.markShape(pointOnHull, COLORS.GREEN, 'Added');
       await this.updateConvexHull(convextHull);
       endPoint = points[0];
-      await this.markPoint(endPoint, COLORS.RED, 'Favorite');
+      await this.markShape(endPoint, COLORS.RED, 'Favorite');
       for (let j = 1; j < points.length; j++) {
-        await this.markPoint(points[j], COLORS.BLUE);
+        await this.markShape(points[j], COLORS.BLUE);
         if (
           endPoint === pointOnHull
           || isLeftOfLine(points[j], [pointOnHull, endPoint])
         ) {
-          await this.unmarkPoint(endPoint, COLORS.RED);
+          await this.unmarkShape(endPoint, COLORS.RED);
           endPoint = points[j];
-          await this.markPoint(endPoint, COLORS.RED, 'Favorite');
+          await this.markShape(endPoint, COLORS.RED, 'Favorite');
         }
-        await this.unmarkPoint(points[j], COLORS.BLUE);
+        await this.unmarkShape(points[j], COLORS.BLUE);
       }
-      await this.unmarkPoint(endPoint, COLORS.RED);
-      await this.unmarkPoint(pointOnHull, COLORS.GREEN);
+      await this.unmarkShape(endPoint, COLORS.RED);
+      await this.unmarkShape(pointOnHull, COLORS.GREEN);
       pointOnHull = endPoint;
     } while (endPoint !== convextHull.points[0]);
     return convextHull;

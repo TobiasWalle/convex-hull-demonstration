@@ -1,4 +1,4 @@
-import { algorithms } from './index';
+import { pointAlgorithms } from './index';
 import {
   expectAlgorithmnToWorkWithComplexExample,
   expectAlgorithmnToWorkWithIntermediateExample,
@@ -6,18 +6,18 @@ import {
 } from './test.utils';
 
 describe('Algorithms', () => {
-  Object.entries(algorithms).forEach(([key, Algorithmn]) => {
+  Object.entries(pointAlgorithms).forEach(([key, Algorithm]) => {
     describe(key, () => {
       it('should work with simple example', () => {
-        return expectAlgorithmnToWorkWithSimpleExample(Algorithmn);
+        return expectAlgorithmnToWorkWithSimpleExample(Algorithm);
       });
 
       it('should work with intermediate example', () => {
-        return expectAlgorithmnToWorkWithIntermediateExample(Algorithmn);
+        return expectAlgorithmnToWorkWithIntermediateExample(Algorithm);
       });
 
       it('should work with complex example', () => {
-        return expectAlgorithmnToWorkWithComplexExample(Algorithmn);
+        return expectAlgorithmnToWorkWithComplexExample(Algorithm);
       });
     });
   });

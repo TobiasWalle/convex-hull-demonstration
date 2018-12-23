@@ -1,50 +1,50 @@
 import styled from '@emotion/styled';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AbstractAlgorithm, AbstractAlgorithmType } from '../algorithms/abstract-algorithm';
 import { useMarker } from '../hooks/use-marker';
 import { COLORS } from '../models/colors';
 import { ConvexHull } from '../models/convext-hull';
-import { Point } from '../models/point';
+import { Shape } from '../models/shape';
 import { MultiPointLine } from './multi-point-line';
 
-interface ConvexHullVisualizationProps {
-  points: Point[];
-  algorithm: AbstractAlgorithmType;
+interface ConvexHullVisualizationProps<S extends Shape> {
+  shapes: S[];
+  algorithm: AbstractAlgorithmType<AbstractAlgorithm<S>>;
   width: number;
   height: number;
   manuelModeActivated: boolean;
   getContinueAlgorithmFn: (continueAlgorithm: () => void) => void;
 }
 
-export const ConvexHullVisualization: React.FunctionComponent<ConvexHullVisualizationProps> = ({
-  points,
+export const ConvexHullVisualization = <S extends Shape>({
+  shapes,
   algorithm: Algorithm,
   width,
   height,
   getContinueAlgorithmFn: setContinueAlgorithmFn,
   manuelModeActivated
-}) => {
+}: ConvexHullVisualizationProps<S>) => {
   const {
-    add: markPoint,
-    remove: unmarkPoint,
+    add: markShape,
+    remove: unmarkShape,
     reset: resetPointMarkers,
     getColor: getPointColor,
     getText: getPointText,
     isMarked: isPointMarked,
-  } = useMarker((point: Point) => `${point.x}|${point.y}`);
+  } = useMarker((shape: Shape) => `${shape.x}|${shape.y}`);
   const [convexHull, setConvexHull] = useState<ConvexHull | null>(null);
   useEffect(
     () => {
       setConvexHull(null);
       const algorithm = new Algorithm(
         setConvexHull,
-        markPoint,
-        unmarkPoint,
+        markShape,
+        unmarkShape,
         undefined,
         !manuelModeActivated
       );
       setContinueAlgorithmFn(() => algorithm.continue());
-      algorithm.calculateConvexHull(points)
+      algorithm.calculateConvexHull(shapes)
         .then(setConvexHull)
         .catch(error => {
           if (error) {
@@ -57,29 +57,29 @@ export const ConvexHullVisualization: React.FunctionComponent<ConvexHullVisualiz
         resetPointMarkers();
       }
     },
-    [points, Algorithm, manuelModeActivated, setContinueAlgorithmFn]
+    [shapes, Algorithm, manuelModeActivated, setContinueAlgorithmFn]
   );
 
   return (
     <div>
       <svg width={width} height={height}>
-        {points.map(point => {
-          const radius = isPointMarked(point) ? 6 : 3;
-          const text = getPointText(point);
+        {shapes.map(shape => {
+          const radius = isPointMarked(shape) ? 6 : 3;
+          const text = getPointText(shape);
           const textOffset = radius * .8;
           return (
             <g
-              key={`${point.x}-${point.y}`}
+              key={`${shape.x}-${shape.y}`}
             >
               <Circle
                 r={radius}
-                fill={getPointColor(point) || COLORS.GREY}
-                cx={point.x}
-                cy={point.y}
+                fill={getPointColor(shape) || COLORS.GREY}
+                cx={shape.x}
+                cy={shape.y}
               />
               <Text
-                x={point.x + textOffset + 5}
-                y={point.y + textOffset}
+                x={shape.x + textOffset + 5}
+                y={shape.y + textOffset}
               >{text}</Text>
             </g>
           );

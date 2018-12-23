@@ -1,13 +1,13 @@
 import { ConvexHull } from '../models/convext-hull';
-import { Point } from '../models/point';
+import { Shape } from '../models/shape';
 import { Type } from '../types/type';
 
-export type MarkPoint = (point: Point, color: string, text?: string) => void;
-export type UnmarkPoint = (point: Point, color: string) => void;
+export type MarkShape = (shape: Shape, color: string, text?: string) => void;
+export type UnmarkShape = (shape: Shape, color: string) => void;
 
 export type UpdateConvexHull = (ch: ConvexHull) => void;
 
-export abstract class AbstractAlgorithm {
+export abstract class AbstractAlgorithm<S extends Shape> {
   public abstract complexity: string;
 
   private cancelled = false;
@@ -15,14 +15,14 @@ export abstract class AbstractAlgorithm {
 
   constructor(
     private onUpdateConvexHull: UpdateConvexHull,
-    private onMarkPoint: MarkPoint,
-    private onUnmarkPoint: UnmarkPoint,
+    private onMarkShape: MarkShape,
+    private onUnmarkShape: UnmarkShape,
     private timeout = 200,
     private auto = true
   ) {
   }
 
-  public abstract async calculateConvexHull(points: Point[]): Promise<ConvexHull>
+  public abstract async calculateConvexHull(points: S[]): Promise<ConvexHull>
 
   public cancel(): void {
     this.cancelled = true;
@@ -37,13 +37,13 @@ export abstract class AbstractAlgorithm {
     await this.tick();
   }
 
-  protected async markPoint(point: Point, color: string, text?: string): Promise<void> {
-    this.onMarkPoint(point, color, text);
+  protected async markShape(shape: S, color: string, text?: string): Promise<void> {
+    this.onMarkShape(shape, color, text);
     await this.tick();
   }
 
-  protected async unmarkPoint(point: Point, color: string): Promise<void> {
-    this.onUnmarkPoint(point, color);
+  protected async unmarkShape(shape: S, color: string): Promise<void> {
+    this.onUnmarkShape(shape, color);
     await this.tick();
   }
 
@@ -64,7 +64,7 @@ export abstract class AbstractAlgorithm {
   }
 }
 
-export type AbstractAlgorithmType<T extends AbstractAlgorithm = AbstractAlgorithm> = Type<T, [UpdateConvexHull, MarkPoint, UnmarkPoint, number?, boolean?]>
+export type AbstractAlgorithmType<T extends AbstractAlgorithm<Shape> = AbstractAlgorithm<Shape>> = Type<T, [UpdateConvexHull, MarkShape, UnmarkShape, number?, boolean?]>
 
 function timeout(ms: number): Promise<void> {
   return new Promise(resolve => {

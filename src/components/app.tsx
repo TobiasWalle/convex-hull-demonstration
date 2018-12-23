@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { algorithms } from '../algorithms';
+import { pointAlgorithms } from '../algorithms';
 import { AbstractAlgorithmType } from '../algorithms/abstract-algorithm';
 import { GiftWrapping } from '../algorithms/gift-wrapping';
 import { useFunctionState } from '../hooks/use-function-state';
@@ -22,8 +22,8 @@ export const App: React.FunctionComponent<AppProps> = () => {
 
   type AlgorithmOption = [string, AbstractAlgorithmType];
   const algorithmOptions: AlgorithmOption[] = useMemo(
-    () => Object.keys(algorithms).map((key): AlgorithmOption =>
-      [key, algorithms[key]]
+    () => Object.keys(pointAlgorithms).map((key): AlgorithmOption =>
+      [key, pointAlgorithms[key]]
     ),
     []
   );
@@ -64,7 +64,7 @@ export const App: React.FunctionComponent<AppProps> = () => {
         <ConvexHullVisualization
           width={width}
           height={height}
-          points={points}
+          shapes={points}
           algorithm={algorithm}
           manuelModeActivated={manuelModeActivated}
           getContinueAlgorithmFn={setHandleContinue}

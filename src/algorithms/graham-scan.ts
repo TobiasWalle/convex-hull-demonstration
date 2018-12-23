@@ -5,7 +5,7 @@ import { Stack } from '../models/stack';
 import { swap } from '../utils/array';
 import { AbstractAlgorithm } from './abstract-algorithm';
 
-export class GrahamScan extends AbstractAlgorithm {
+export class GrahamScan extends AbstractAlgorithm<Point> {
   complexity = "O(n log n)";
 
   async calculateConvexHull(points: Point[]): Promise<ConvexHull> {
@@ -25,24 +25,24 @@ export class GrahamScan extends AbstractAlgorithm {
         })
     ];
 
-    await Promise.all(points.map((p, i) => this.markPoint(p, COLORS.BLUE, `${i}`)));
-    await Promise.all(points.map((p, i) => this.unmarkPoint(p, COLORS.BLUE)));
+    await Promise.all(points.map((p, i) => this.markShape(p, COLORS.BLUE, `${i}`)));
+    await Promise.all(points.map((p, i) => this.unmarkShape(p, COLORS.BLUE)));
 
     const stack = new Stack<Point>();
     stack.push(firstPoint);
-    await this.markPoint(firstPoint, COLORS.BLUE);
+    await this.markShape(firstPoint, COLORS.BLUE);
     stack.push(points[1]);
-    await this.markPoint(points[1], COLORS.BLUE);
+    await this.markShape(points[1], COLORS.BLUE);
     for (let i = 2; i < N; i++) {
       const direction = async () => {
         const direction = getDirection(stack.top, stack.secondTop, points[i]);
-        await this.markPoint(stack.top, COLORS.RED);
-        await this.markPoint(stack.secondTop, COLORS.GREEN);
-        await this.markPoint(points[i], COLORS.ORANGE, direction);
+        await this.markShape(stack.top, COLORS.RED);
+        await this.markShape(stack.secondTop, COLORS.GREEN);
+        await this.markShape(points[i], COLORS.ORANGE, direction);
 
-        await this.unmarkPoint(stack.top, COLORS.RED);
-        await this.unmarkPoint(stack.secondTop, COLORS.GREEN);
-        await this.unmarkPoint(points[i], COLORS.ORANGE);
+        await this.unmarkShape(stack.top, COLORS.RED);
+        await this.unmarkShape(stack.secondTop, COLORS.GREEN);
+        await this.unmarkShape(points[i], COLORS.ORANGE);
         return direction;
       };
 
@@ -51,12 +51,12 @@ export class GrahamScan extends AbstractAlgorithm {
         [Direction.right, Direction.collision].includes(await direction())
         ) {
         const point = stack.pop();
-        await this.unmarkPoint(point, COLORS.BLUE);
+        await this.unmarkShape(point, COLORS.BLUE);
       }
 
 
       stack.push(points[i]);
-      await this.markPoint(points[i], COLORS.BLUE);
+      await this.markShape(points[i], COLORS.BLUE);
     }
     return { points: stack.asArray() };
   }
