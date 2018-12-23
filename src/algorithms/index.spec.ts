@@ -1,4 +1,5 @@
-import { pointAlgorithms } from './index';
+import { ShapeType } from '../models/shape';
+import { algorithmsByType } from './index';
 import {
   expectAlgorithmnToWorkWithComplexExample,
   expectAlgorithmnToWorkWithIntermediateExample,
@@ -6,7 +7,7 @@ import {
 } from './test.utils';
 
 describe('Algorithms', () => {
-  Object.entries(pointAlgorithms).forEach(([key, Algorithm]) => {
+  Object.entries(algorithmsByType[ShapeType.Point]).forEach(([key, Algorithm]) => {
     describe(key, () => {
       it('should work with simple example', () => {
         return expectAlgorithmnToWorkWithSimpleExample(Algorithm);

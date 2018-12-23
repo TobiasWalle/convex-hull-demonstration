@@ -5,7 +5,8 @@ import { Type } from '../types/type';
 export type MarkShape = (shape: Shape, color: string, text?: string) => void;
 export type UnmarkShape = (shape: Shape, color: string) => void;
 
-export type UpdateConvexHull = (ch: ConvexHull) => void;
+export type UpdateConvexHull<S extends Shape> = (ch: ConvexHull<S>) => void;
+
 
 export abstract class AbstractAlgorithm<S extends Shape> {
   public abstract complexity: string;
@@ -14,7 +15,7 @@ export abstract class AbstractAlgorithm<S extends Shape> {
   private _continue?: () => void;
 
   constructor(
-    private onUpdateConvexHull: UpdateConvexHull,
+    private onUpdateConvexHull: UpdateConvexHull<S>,
     private onMarkShape: MarkShape,
     private onUnmarkShape: UnmarkShape,
     private timeout = 200,
@@ -22,7 +23,7 @@ export abstract class AbstractAlgorithm<S extends Shape> {
   ) {
   }
 
-  public abstract async calculateConvexHull(points: S[]): Promise<ConvexHull>
+  public abstract async calculateConvexHull(points: S[]): Promise<ConvexHull<S>>
 
   public cancel(): void {
     this.cancelled = true;
@@ -32,7 +33,7 @@ export abstract class AbstractAlgorithm<S extends Shape> {
     this._continue && this._continue();
   }
 
-  protected async updateConvexHull(convexHull: ConvexHull): Promise<void> {
+  protected async updateConvexHull(convexHull: ConvexHull<S>): Promise<void> {
     this.onUpdateConvexHull(convexHull);
     await this.tick();
   }
@@ -64,7 +65,8 @@ export abstract class AbstractAlgorithm<S extends Shape> {
   }
 }
 
-export type AbstractAlgorithmType<T extends AbstractAlgorithm<Shape> = AbstractAlgorithm<Shape>> = Type<T, [UpdateConvexHull, MarkShape, UnmarkShape, number?, boolean?]>
+export type AbstractAlgorithmType<T extends AbstractAlgorithm<S> = AbstractAlgorithm<S>, S extends Shape = Shape> =
+  Type<T, [UpdateConvexHull<S>, MarkShape, UnmarkShape, number?, boolean?]>
 
 function timeout(ms: number): Promise<void> {
   return new Promise(resolve => {

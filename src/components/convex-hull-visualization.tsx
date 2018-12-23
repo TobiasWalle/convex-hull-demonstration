@@ -3,13 +3,14 @@ import React, { useEffect, useState } from 'react';
 import { AbstractAlgorithm, AbstractAlgorithmType } from '../algorithms/abstract-algorithm';
 import { useMarker } from '../hooks/use-marker';
 import { COLORS } from '../models/colors';
-import { ConvexHull } from '../models/convext-hull';
-import { Shape } from '../models/shape';
+import { isCircleConvexHull, UnknownConvexHull } from '../models/convext-hull';
+import { Point } from '../models/point';
+import { isShapeCircle, isShapePoint, Shape } from '../models/shape';
 import { MultiPointLine } from './multi-point-line';
 
 interface ConvexHullVisualizationProps<S extends Shape> {
   shapes: S[];
-  algorithm: AbstractAlgorithmType<AbstractAlgorithm<S>>;
+  algorithm: AbstractAlgorithmType<AbstractAlgorithm<S>, S>;
   width: number;
   height: number;
   manuelModeActivated: boolean;
@@ -30,9 +31,9 @@ export const ConvexHullVisualization = <S extends Shape>({
     reset: resetPointMarkers,
     getColor: getPointColor,
     getText: getPointText,
-    isMarked: isPointMarked,
+    isMarked: isShapeMarked,
   } = useMarker((shape: Shape) => `${shape.x}|${shape.y}`);
-  const [convexHull, setConvexHull] = useState<ConvexHull | null>(null);
+  const [convexHull, setConvexHull] = useState<UnknownConvexHull | null>(null);
   useEffect(
     () => {
       setConvexHull(null);
@@ -64,27 +65,29 @@ export const ConvexHullVisualization = <S extends Shape>({
     <div>
       <svg width={width} height={height}>
         {shapes.map(shape => {
-          const radius = isPointMarked(shape) ? 6 : 3;
+          const isMarked = isShapeMarked(shape);
+          const color = getPointColor(shape) || COLORS.GREY;
           const text = getPointText(shape);
-          const textOffset = radius * .8;
-          return (
-            <g
-              key={`${shape.x}-${shape.y}`}
-            >
-              <Circle
-                r={radius}
-                fill={getPointColor(shape) || COLORS.GREY}
-                cx={shape.x}
-                cy={shape.y}
+          if (isShapeCircle(shape)) {
+            return <Text x={shape.x} y={shape.y}>Circle</Text>
+          } else if (isShapePoint(shape)) {
+            return (
+              <PointVisulization
+                key={`${shape.x}-${shape.y}`}
+                point={shape}
+                isMarked={isMarked}
+                text={text}
+                color={color}
               />
-              <Text
-                x={shape.x + textOffset + 5}
-                y={shape.y + textOffset}
-              >{text}</Text>
-            </g>
-          );
+            );
+          }
         })}
-        {convexHull && <MultiPointLine points={convexHull.points}/>}
+        {convexHull && (
+          isCircleConvexHull(convexHull)
+          ? <g/>
+          : <MultiPointLine points={convexHull.points}/>
+        )
+        }
       </svg>
     </div>
   );
@@ -97,3 +100,33 @@ const Circle = styled.circle`
 const Text = styled.text`
     transition: x 100ms, y 100ms;
 `;
+
+interface PointVisualizationProps {
+  point: Point;
+  isMarked: boolean;
+  color?: string;
+  text?: string;
+}
+
+const PointVisulization = ({
+  point,
+  isMarked,
+  text,
+  color
+}: PointVisualizationProps) => {
+  const radius = isMarked ? 6 : 3;
+  const textOffset = radius * .8;
+  return (
+    <g>
+      <Circle
+        r={radius}
+        fill={color}
+        cx={point.x}
+        cy={point.y}
+      />
+      <Text
+        x={point.x + textOffset + 5}
+        y={point.y + textOffset}
+      >{text}</Text></g>
+  );
+};
