@@ -2,7 +2,7 @@ import { Arc } from '../models/arc';
 import { Circle } from '../models/circle';
 import { Line } from '../models/line';
 import { Point } from '../models/point';
-import { calculateArcs, calculateUpperTangent, correctArcs, getArcPoints } from '../utils/arc';
+import { calculateArcs, calculateMiddlePoint, calculateUpperTangent, correctArcs, getArcPoints } from '../utils/arc';
 import { distanceBetween, isDegreeAngleBetween, degreeToCartesian } from '../utils/geometry';
 import { calculateIntersectionPointWithArc, calculateIntersectionPointWithLine } from '../utils/intersection';
 import { AbstractAlgorithm } from './abstract-algorithm';
@@ -102,7 +102,7 @@ class ArcsStore {
     const resultArcPoints = getArcPoints(resultArc);
     const resultArcStartAngleFromCenter = getAngleInDegrees(center, resultArcPoints.start);
     const resultArcEndAngleFromCenter = getAngleInDegrees(center, resultArcPoints.end);
-    if (isDegreeAngleBetween(resultArcEndAngleFromCenter, resultArcStartAngleFromCenter, angleToCircle)) {
+    if (isDegreeAngleBetween(resultArcStartAngleFromCenter, resultArcEndAngleFromCenter, angleToCircle)) {
       intersectionPoint = calculateIntersectionPointWithArc(resultArc, intersectionLine);
     } else if (this.arcs.length >= 2) {
       const arcAfterResult: Arc = this.arcs[resultArcIndex + 1];
@@ -132,11 +132,9 @@ class ArcsStore {
     const indexOfStart = this.arcs.findIndex(value => value === start) - 1;
     return new Iterator<Arc>(i => {
       let newIndex = indexOfStart - i;
-      console.log('II', newIndex, (-newIndex % this.arcs.length), this.arcs.length);
       if (newIndex < 0) {
         newIndex = this.arcs.length - (-newIndex % this.arcs.length);
       }
-      console.log('III', newIndex);
       return this.arcs[newIndex];
     });
   }
@@ -154,14 +152,7 @@ class ArcsStore {
 
 
   private getCenter(): Point {
-    const sums = this.arcs.reduce(
-      (sP, p) => ({ x: sP.x + p.x, y: sP.y + p.y }),
-      { x: 0, y: 0 }
-    );
-    return {
-      x: sums.x / this.arcs.length,
-      y: sums.y / this.arcs.length
-    };
+    return calculateMiddlePoint(...this.arcs);
   }
 
   private sort(): void {
