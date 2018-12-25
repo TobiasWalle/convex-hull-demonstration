@@ -8,7 +8,7 @@ import { AbstractAlgorithm } from './abstract-algorithm';
 export class GrahamScan extends AbstractAlgorithm<Point> {
   complexity = "O(n log n)";
 
-  async calculateConvexHull(points: Point[]): Promise<ConvexHull> {
+  async calculateConvexHull(points: Point[]): Promise<ConvexHull<Point>> {
     const N = points.length;
     this.swapFirstPointWithHighestPoint(points);
     const firstPoint = points[0];

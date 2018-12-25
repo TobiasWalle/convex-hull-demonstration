@@ -17,5 +17,5 @@ export async function expectCircleAlgorithmToWorkWithCircleOutsideHull(Alg: Abst
 
   const result = await initAlgorithmnForTesting(Alg).calculateConvexHull(circles);
 
-  expect(new Set(result.arcs)).toMatchObject(new Set(expectedArcs));
+  expect(result.arcs).toEqual(expectedArcs);
 }

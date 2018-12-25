@@ -8,8 +8,8 @@ import { getAngleInDegrees } from './general.utils';
 export class GiftWrapping extends AbstractAlgorithm<Point> {
   public complexity = "O(nh)";
 
-  public async calculateConvexHull(points: Point[]): Promise<ConvexHull> {
-    const convextHull: ConvexHull = { points: [] };
+  public async calculateConvexHull(points: Point[]) {
+    const convextHull: ConvexHull<Point> = { points: [] };
     let pointOnHull = getLeftMostPoint(points);
     let endPoint: Point;
     do {
@@ -22,7 +22,7 @@ export class GiftWrapping extends AbstractAlgorithm<Point> {
         await this.markShape(points[j], COLORS.BLUE);
         if (
           endPoint === pointOnHull
-          || isLeftOfLine(points[j], [pointOnHull, endPoint])
+          || isLeftOfLine(points[j], { start: pointOnHull, end: endPoint })
         ) {
           await this.unmarkShape(endPoint, COLORS.RED);
           endPoint = points[j];
@@ -49,7 +49,7 @@ function getLeftMostPoint(points: Point[]): Point {
 }
 
 function isLeftOfLine(p: Point, line: Line) {
-  const [start, end] = line;
+  const {start, end} = line;
   if (start === p) {
     return false;
   }
