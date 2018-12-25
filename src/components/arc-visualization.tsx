@@ -1,6 +1,6 @@
 import React from 'react';
 import { Arc } from '../models/arc';
-import { polarToCartesian } from '../utils/geometry';
+import { degreeToCartesian } from '../utils/geometry';
 
 interface ArcVisualizationProps {
   arc: Arc;
@@ -15,8 +15,8 @@ export const ArcVisualization: React.FunctionComponent<ArcVisualizationProps> = 
     radius
   }
 }) => {
-  const start = polarToCartesian(x, y, radius, endAngle);
-  const end = polarToCartesian(x, y, radius, startAngle);
+  const start = degreeToCartesian(x, y, radius, endAngle);
+  const end = degreeToCartesian(x, y, radius, startAngle);
 
   const largeArcFlag = endAngle - startAngle <= 180 ? 0 : 1;
 

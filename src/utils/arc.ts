@@ -3,12 +3,12 @@ import { Arc } from '../models/arc';
 import { Circle } from '../models/circle';
 import { Line } from '../models/line';
 import { Point } from '../models/point';
-import { isDegreeAngleBetween, polarToCartesian } from './geometry';
+import { isDegreeAngleBetween, degreeToCartesian } from './geometry';
 
 export function getArcPoints(arc: Arc): { start: Point, end: Point } {
   return {
-    start: polarToCartesian(arc.x, arc.y, arc.radius, arc.startAngle),
-    end: polarToCartesian(arc.x, arc.y, arc.radius, arc.endAngle)
+    start: degreeToCartesian(arc.x, arc.y, arc.radius, arc.startAngle),
+    end: degreeToCartesian(arc.x, arc.y, arc.radius, arc.endAngle)
   };
 }
 

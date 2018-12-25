@@ -1,14 +1,10 @@
-import { getAngleInDegrees } from '../algorithms/general.utils';
-import { Line } from '../models/line';
+import { degreeToRadian } from '../algorithms/general.utils';
 import { Point } from '../models/point';
-import { Side } from '../models/side';
 
-export function polarToCartesian(centerX: number, centerY: number, radius: number, angleInDegrees: number): Point {
-  const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
-
+export function degreeToCartesian(centerX: number, centerY: number, radius: number, angleInDegrees: number): Point {
   return {
-    x: centerX + (radius * Math.cos(angleInRadians)),
-    y: centerY + (radius * Math.sin(angleInRadians))
+    x: centerX + (radius * Math.cos(degreeToRadian(angleInDegrees))),
+    y: centerY + (radius * Math.sin(degreeToRadian(angleInDegrees)))
   };
 }
 
@@ -43,7 +39,7 @@ function getPositionInPercent(value: number) {
   if (value <= 0) {
     return percent;
   } else {
-    return  1 - percent;
+    return 1 - percent;
   }
 }
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { CircleConvexHull } from '../models/convext-hull';
 import { Point } from '../models/point';
-import { polarToCartesian } from '../utils/geometry';
+import { degreeToCartesian } from '../utils/geometry';
 import { ArcVisualization } from './arc-visualization';
 import { MultiPointLine } from './multi-point-line';
 
@@ -13,8 +13,8 @@ export const CircleConvexHullVisualization: React.FunctionComponent<CircleConvex
   hull
 }) => {
   const startAndEndPoints = hull.arcs.map(arc => ({
-    start: polarToCartesian(arc.x, arc.y, arc.radius, arc.startAngle),
-    end: polarToCartesian(arc.x, arc.y, arc.radius, arc.endAngle),
+    start: degreeToCartesian(arc.x, arc.y, arc.radius, arc.startAngle),
+    end: degreeToCartesian(arc.x, arc.y, arc.radius, arc.endAngle),
   }));
   if (startAndEndPoints.length === 0) {
     return <g/>;

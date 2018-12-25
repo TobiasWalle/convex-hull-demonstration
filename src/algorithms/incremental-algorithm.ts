@@ -3,7 +3,7 @@ import { Circle } from '../models/circle';
 import { Line } from '../models/line';
 import { Point } from '../models/point';
 import { calculateArcs, calculateUpperTangent, correctArcs, getArcPoints } from '../utils/arc';
-import { distanceBetween, isDegreeAngleBetween, polarToCartesian } from '../utils/geometry';
+import { distanceBetween, isDegreeAngleBetween, degreeToCartesian } from '../utils/geometry';
 import { calculateIntersectionPointWithArc, calculateIntersectionPointWithLine } from '../utils/intersection';
 import { AbstractAlgorithm } from './abstract-algorithm';
 import { getAngleInDegrees } from './general.utils';
@@ -58,6 +58,7 @@ export class IncrementalAlgorithm extends AbstractAlgorithm<Circle> {
       }
     }
 
+    console.log(result.arcs);
     return {
       arcs: result.arcs
     };
