@@ -12,11 +12,13 @@ interface CircleConvexHullVisualizationProps {
 export const CircleConvexHullVisualization: React.FunctionComponent<CircleConvexHullVisualizationProps> = ({
   hull
 }) => {
+  console.log('Hull', hull.arcs);
   const startAndEndPoints = hull.arcs.map(arc => ({
     start: degreeToCartesian(arc.x, arc.y, arc.radius, arc.startAngle),
     end: degreeToCartesian(arc.x, arc.y, arc.radius, arc.endAngle),
   }));
   if (startAndEndPoints.length === 0) {
+    console.log('cancel');
     return <g/>;
   }
   const lines: Point[][] = [
@@ -28,6 +30,7 @@ export const CircleConvexHullVisualization: React.FunctionComponent<CircleConvex
       startAndEndPoints[i].end,
     ]);
   }
+  console.log(lines);
   return (
     <g>
       {hull.arcs.map((arc, i) => <ArcVisualization key={i} arc={arc}/>)}

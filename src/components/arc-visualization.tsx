@@ -15,6 +15,10 @@ export const ArcVisualization: React.FunctionComponent<ArcVisualizationProps> = 
     radius
   }
 }) => {
+  if (startAngle == 0 && endAngle == 360) {
+    endAngle -= 0.01;
+  }
+
   const start = degreeToCartesian(x, y, radius, endAngle);
   const end = degreeToCartesian(x, y, radius, startAngle);
 
@@ -30,7 +34,7 @@ export const ArcVisualization: React.FunctionComponent<ArcVisualizationProps> = 
       <path
         d={d}
         fill="transparent"
-        stroke="black"
+        stroke="red"
         strokeWidth={2}
       />
     </>

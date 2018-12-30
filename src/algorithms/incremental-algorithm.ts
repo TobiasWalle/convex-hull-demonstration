@@ -1,9 +1,10 @@
 import { Arc } from '../models/arc';
 import { Circle } from '../models/circle';
+import { COLORS } from '../models/colors';
 import { Line } from '../models/line';
 import { Point } from '../models/point';
 import { calculateArcs, calculateMiddlePoint, calculateUpperTangent, correctArcs, getArcPoints } from '../utils/arc';
-import { distanceBetween, isDegreeAngleBetween, degreeToCartesian } from '../utils/geometry';
+import { distanceBetween, isDegreeAngleBetween } from '../utils/geometry';
 import { calculateIntersectionPointWithArc, calculateIntersectionPointWithLine } from '../utils/intersection';
 import { AbstractAlgorithm } from './abstract-algorithm';
 import { getAngleInDegrees } from './general.utils';
@@ -17,44 +18,48 @@ export class IncrementalAlgorithm extends AbstractAlgorithm<Circle> {
       .slice().sort((c1, c2) => c2.radius - c1.radius);
 
     const result = new ArcsStore();
-    result.addAll(calculateArcs(circles[0], circles[1]));
+    result.add(circleAsArc(circles[0]));
 
-    for (let i = 2; i < circles.length; i++) {
+    const pointInCh = circles[0];
+    for (let i = 1; i < circles.length; i++) {
       const circle = circles[i];
-      const a: Arc | null = result.findArc(circle);
-      if (a != null) {
-        let clockWiseArc: Arc;
-        const clockwiseIterator = result.getClockwiseIterator(a);
-        while (true) {
-          let currentArc = clockwiseIterator.next();
-          if (sharesSupportingTangentClockWise(currentArc, clockwiseIterator.peakNext(), circle)) {
-            clockWiseArc = currentArc;
-            break;
-          } else {
-            result.delete(currentArc);
-          }
-        }
+      const a: Arc | null = result.findArc(circle, pointInCh);
+      console.log('arc', a);
+      if (a == null) {
+        continue;
+      }
 
-        let counterClockwiseArc: Arc;
-        const counterClockwiseIterator = result.getCounterClockwiseIterator(a);
-        while (true) {
-          let currentArc = counterClockwiseIterator.next();
-          if (sharesSupportingTangentCounterClockWise(currentArc, clockwiseIterator.peakNext(), circle)) {
-            counterClockwiseArc = currentArc;
-            break;
-          } else {
-            result.delete(currentArc);
-          }
-        }
-
-        if (a === clockWiseArc && a === counterClockwiseArc) {
-          result.delete(a);
-          result.addAll(calculateArcs(circle, a));
+      let clockWiseArc: Arc;
+      const clockwiseIterator = result.getClockwiseIterator(a);
+      while (true) {
+        let currentArc = clockwiseIterator.next();
+        if (sharesSupportingTangentClockWise(currentArc, clockwiseIterator.peakNext(), circle)) {
+          clockWiseArc = currentArc;
+          break;
         } else {
-          result.delete(clockWiseArc);
-          result.delete(counterClockwiseArc);
-          result.addAll(correctArcs(circle, counterClockwiseArc, clockWiseArc));
+          result.delete(currentArc);
         }
+      }
+
+      let counterClockwiseArc: Arc;
+      const counterClockwiseIterator = result.getCounterClockwiseIterator(a);
+      while (true) {
+        let currentArc = counterClockwiseIterator.next();
+        if (sharesSupportingTangentCounterClockWise(currentArc, clockwiseIterator.peakNext(), circle)) {
+          counterClockwiseArc = currentArc;
+          break;
+        } else {
+          result.delete(currentArc);
+        }
+      }
+
+      if (a === clockWiseArc && a === counterClockwiseArc) {
+        result.delete(a);
+        result.addAll(calculateArcs(circle, a));
+      } else {
+        result.delete(clockWiseArc);
+        result.delete(counterClockwiseArc);
+        result.addAll(correctArcs(circle, counterClockwiseArc, clockWiseArc));
       }
     }
 
@@ -77,14 +82,13 @@ class ArcsStore {
     this.sort();
   }
 
-  public findArc(circle: Circle): Arc | null {
-    const center = this.getCenter();
-    const angleToCircle = getAngleInDegrees(center, circle);
+  public findArc(circle: Circle, pointInCh: Point): Arc | null {
+    const angleToCircle = getAngleInDegrees(pointInCh, circle);
 
     let resultArcIndex = 0;
     for (let i = 1; i < this.arcs.length; i++) {
       const arc = this.arcs[i];
-      const angleToArc = getAngleInDegrees(center, arc);
+      const angleToArc = getAngleInDegrees(pointInCh, arc);
       const hasPassedCircle = angleToCircle > angleToArc;
       if (hasPassedCircle) {
         break;
@@ -93,19 +97,24 @@ class ArcsStore {
       }
     }
     const resultArc = this.arcs[resultArcIndex];
+    console.log(`Result arc at index ${resultArcIndex}`, resultArc);
 
     const intersectionLine: Line = {
-      start: center,
+      start: pointInCh,
       end: circle
     };
     let intersectionPoint: Point | null = null;
     const resultArcPoints = getArcPoints(resultArc);
-    const resultArcStartAngleFromCenter = getAngleInDegrees(center, resultArcPoints.start);
-    const resultArcEndAngleFromCenter = getAngleInDegrees(center, resultArcPoints.end);
-    if (isDegreeAngleBetween(resultArcStartAngleFromCenter, resultArcEndAngleFromCenter, angleToCircle)) {
+    const resultArcStartAngleFromCenter = getAngleInDegrees(pointInCh, resultArcPoints.start);
+    const resultArcEndAngleFromCenter = getAngleInDegrees(pointInCh, resultArcPoints.end);
+    console.log('IS BETWEEN?', resultArcStartAngleFromCenter, resultArcEndAngleFromCenter, angleToCircle);
+    if (resultArcStartAngleFromCenter === resultArcEndAngleFromCenter || isDegreeAngleBetween(resultArcStartAngleFromCenter, resultArcEndAngleFromCenter, angleToCircle)) {
+      console.log('Calculate intersection with arc');
       intersectionPoint = calculateIntersectionPointWithArc(resultArc, intersectionLine);
     } else if (this.arcs.length >= 2) {
-      const arcAfterResult: Arc = this.arcs[resultArcIndex + 1];
+      console.log('Calculate intersection with line');
+      const arcAfterResult: Arc = this.arcs[(resultArcIndex + 1) % this.arcs.length];
+      console.log(arcAfterResult);
       intersectionPoint = calculateIntersectionPointWithLine({
         start: getArcPoints(resultArc).start,
         end: getArcPoints(arcAfterResult).end
@@ -113,10 +122,11 @@ class ArcsStore {
     }
 
     if (!intersectionPoint) {
+      console.log('No Intersection Point');
       return null;
     }
 
-    if (distanceBetween(center, intersectionPoint) < distanceBetween(center, circle)) {
+    if (distanceBetween(pointInCh, intersectionPoint) < distanceBetween(pointInCh, circle)) {
       return resultArc;
     } else {
       return null;
@@ -133,8 +143,13 @@ class ArcsStore {
     return new Iterator<Arc>(i => {
       let newIndex = indexOfStart - i;
       if (newIndex < 0) {
-        newIndex = this.arcs.length - (-newIndex % this.arcs.length);
+        if (this.arcs.length === 1) {
+          newIndex = 0;
+        } else {
+          newIndex = this.arcs.length - (-newIndex % this.arcs.length);
+        }
       }
+      console.log(newIndex, this.arcs.length);
       return this.arcs[newIndex];
     });
   }

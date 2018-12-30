@@ -15,6 +15,7 @@ export function generateRandomPoint(width: number, height: number): Point {
 }
 
 export function generateRandomCircles(count: number, width: number, height: number): Circle[] {
+  // return [ { x: 10, y: 60, radius: 5 }, { x: 40, y: 20, radius: 15 }, { x: 70, y: 50, radius: 10 } ];
   return createArray(count).map(() => generateRandomCircle(width, height));
 }
 
