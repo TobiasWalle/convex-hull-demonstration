@@ -33,10 +33,6 @@ export const ArcVisualization: React.FunctionComponent<ArcVisualizationProps> = 
         stroke="black"
         strokeWidth={2}
       />
-      <text
-        x={x + 20}
-        y={y}
-      >{Math.round(startAngle)} | {Math.round(endAngle)} | {Math.round(getAngleDiff(startAngle, endAngle))}</text>
     </>
   );
 };
