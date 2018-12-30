@@ -18,7 +18,7 @@ export const ArcVisualization: React.FunctionComponent<ArcVisualizationProps> = 
   const start = degreeToCartesian(x, y, radius, endAngle);
   const end = degreeToCartesian(x, y, radius, startAngle);
 
-  const largeArcFlag = endAngle - startAngle <= 180 ? 0 : 1;
+  const largeArcFlag = getAngleDiff(startAngle, endAngle) > 180 ? 1 : 0;
 
   const d = [
     `M ${start.x} ${start.y}`,
@@ -26,12 +26,25 @@ export const ArcVisualization: React.FunctionComponent<ArcVisualizationProps> = 
   ].join(' ');
 
   return (
-    <path
-      d={d}
-      fill="transparent"
-      stroke="black"
-      strokeWidth={2}
-    />
+    <>
+      <path
+        d={d}
+        fill="transparent"
+        stroke="black"
+        strokeWidth={2}
+      />
+      <text
+        x={x + 20}
+        y={y}
+      >{Math.round(startAngle)} | {Math.round(endAngle)} | {Math.round(getAngleDiff(startAngle, endAngle))}</text>
+    </>
   );
 };
 
+function getAngleDiff(start: number, end: number): number {
+  if (end >= start) {
+    return end - start;
+  } else {
+    return (end + 360) - start;
+  }
+}

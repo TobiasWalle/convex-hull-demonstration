@@ -20,7 +20,7 @@ interface AppProps {
 }
 
 export const App: React.FunctionComponent<AppProps> = () => {
-  const shapeType: ShapeType = ShapeType.Point;
+  const shapeType: ShapeType = ShapeType.Circle;
   const algorithms = algorithmsByType[shapeType];
   const { width } = useWindowSize();
   const height = 400;
