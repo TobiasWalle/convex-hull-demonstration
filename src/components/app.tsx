@@ -3,6 +3,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { algorithmsByType } from '../algorithms';
 import { AbstractAlgorithmType } from '../algorithms/abstract-algorithm';
 import { useFunctionState } from '../hooks/use-function-state';
+import { useWindowSize } from '../hooks/use-window-size';
 import { Shape, ShapeType } from '../models/shape';
 import {
   generateRandomCircle,
@@ -19,9 +20,9 @@ interface AppProps {
 }
 
 export const App: React.FunctionComponent<AppProps> = () => {
-  const shapeType: ShapeType = ShapeType.Circle;
+  const shapeType: ShapeType = ShapeType.Point;
   const algorithms = algorithmsByType[shapeType];
-  const width = 400;
+  const { width } = useWindowSize();
   const height = 400;
 
   const {
@@ -30,7 +31,7 @@ export const App: React.FunctionComponent<AppProps> = () => {
     addShape
   } = useRandomShapes(shapeType, width, height);
 
-  const [manuelModeActivated, setManuelModeActivated] = useState(true);
+  const [manuelModeActivated, setManuelModeActivated] = useState(false);
   const [algorithm, setAlgorithm] = useFunctionState(Object.values(algorithms)[0]);
 
   type AlgorithmOption = [string, AbstractAlgorithmType];
@@ -61,11 +62,11 @@ export const App: React.FunctionComponent<AppProps> = () => {
           onSelect={handleSelect}
           renderOption={renderOption}
         />
-        <Button onClick={handleContinue}>Continue</Button>
         <Toggle
           value={manuelModeActivated}
           onChange={setManuelModeActivated}
         >Manuel</Toggle>
+        <Button disabled={!manuelModeActivated} onClick={handleContinue}>Continue</Button>
       </Controls>
       <VisualizationWrapper>
         <ConvexHullVisualization<Shape>
@@ -107,7 +108,7 @@ function useRandomShapes(type: ShapeType, width: number, height: number): UseRan
       : generateRandomCircles(n, width, height),
     [type, width, height]
   );
-    const generateItem = useCallback(
+  const generateItem = useCallback(
     () => type === ShapeType.Point
       ? generateRandomPoint(width, height)
       : generateRandomCircle(width, height),
