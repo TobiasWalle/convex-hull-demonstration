@@ -1,5 +1,5 @@
-import { number } from 'prop-types';
-import { calculateArcs, correctArcs } from './arc';
+import { Point } from '../models/point';
+import { calculateArcs, correctArcs, getClockwiseAndCounterclockwisePointRelativeTo } from './arc';
 
 describe('calculateArcs', () => {
   it('should work with left/right', () => {
@@ -90,5 +90,26 @@ describe('correctArcs', () => {
       { x: 3, y: 1, radius: 1, startAngle: 45, endAngle: 270 },
       { x: 1, y: 1, radius: 1, startAngle: 270, endAngle: 4 },
     ]);
+  });
+});
+
+describe('getClockwiseAndCounterclockwiseArcRelativeTo', () => {
+
+  function test({ pivot, c, cw }: { pivot: Point, c: Point, cw: Point }) {
+    expect(getClockwiseAndCounterclockwisePointRelativeTo(pivot, c, cw)).toEqual({
+      clockWise: c,
+      counterClockWise: cw
+    });
+    expect(getClockwiseAndCounterclockwisePointRelativeTo(pivot, cw, c)).toEqual({
+      clockWise: c,
+      counterClockWise: cw
+    });
+  }
+
+  it('should work', () => {
+    test({ pivot: { x: 10, y: 10 }, c: { x: 0, y: 0 }, cw: { x: 0, y: 20 } });
+    test({ pivot: { x: 0, y: 0 }, c: { x: 10, y: 20 }, cw: { x: 10, y: 0 } });
+    test({ pivot: { x: 10, y: 0 }, c: { x: 0, y: 10 }, cw: { x: 20, y: 10 } });
+    test({ pivot: { x: 10, y: 10 }, c: { x: 10, y: 0 }, cw: { x: 0, y: 0 } });
   });
 });

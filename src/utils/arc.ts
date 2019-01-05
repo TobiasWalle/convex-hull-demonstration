@@ -3,7 +3,7 @@ import { Arc } from '../models/arc';
 import { Circle } from '../models/circle';
 import { Line } from '../models/line';
 import { Point } from '../models/point';
-import { isDegreeAngleBetween, degreeToCartesian } from './geometry';
+import { isDegreeAngleBetween, degreeToCartesian, isDegreeAngleBetweenClockwise } from './geometry';
 
 export function getArcPoints(arc: Arc): { start: Point, end: Point } {
   return {
@@ -12,7 +12,8 @@ export function getArcPoints(arc: Arc): { start: Point, end: Point } {
   };
 }
 
-export function correctArcs(circle: Circle, counterClockWiseArc: Arc, clockWiseArc: Arc): Arc[] {
+export function correctArcs(circle: Circle, arc1: Arc, arc2: Arc): Arc[] {
+  const { counterClockWise: counterClockWiseArc, clockWise: clockWiseArc } = getClockwiseAndCounterclockwisePointRelativeTo(circle, arc1, arc2);
   const {
     ccToCircle,
     circleToCw
@@ -32,7 +33,29 @@ export function correctArcs(circle: Circle, counterClockWiseArc: Arc, clockWiseA
       startAngle: getAngleInDegrees(clockWiseArc, circleToCw.end),
     }
   ];
-};
+}
+
+export function getClockwiseAndCounterclockwisePointRelativeTo<T extends Point>(pivot: Point, p1: T, p2: T): {
+  clockWise: T;
+  counterClockWise: T;
+} {
+  const angle1 = getAngleInDegrees(pivot, p1);
+  const angle2 = getAngleInDegrees(pivot, p2);
+  if (getClockwiseAngleDiff(angle1, angle2) < getClockwiseAngleDiff(angle2, angle1)) {
+    return { clockWise: p1, counterClockWise: p2 };
+  } else {
+    return { clockWise: p2, counterClockWise: p1 };
+  }
+}
+
+function getClockwiseAngleDiff(a1: number, a2: number): number {
+  const diff = a1 - a2;
+  if (diff < 0) {
+    return 360 - diff;
+  } else {
+    return diff;
+  }
+}
 
 export function calculateTangentsToCorrectArcs(counterClockWiseArc: Arc, clockWiseArc: Arc, circle: Circle) {
   return {
@@ -96,7 +119,7 @@ function getClearAngles(
   const angleToOtherCircle = getAngleInDegrees(circle1, circle2);
   const angle1 = getAngleInDegrees(circle1, point1);
   const angle2 = getAngleInDegrees(circle1, point2);
-  if (isDegreeAngleBetween(angle1, angle2, angleToOtherCircle)) {
+  if (isDegreeAngleBetweenClockwise(angle1, angle2, angleToOtherCircle)) {
     return {
       startAngle: angle2,
       endAngle: angle1

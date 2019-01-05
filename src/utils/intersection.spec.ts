@@ -33,4 +33,11 @@ describe('calculateIntersectionPointWithArc', () => {
       { start: { x: 5, y: 0 }, end: { x: 5, y: 4 } }
     )).toEqual(null);
   });
+
+  it('should work if the line starts in the arc', () => {
+    expect(calculateIntersectionPointWithArc(
+      { x: 2, y: 2, startAngle: 0, endAngle: 360, radius: 1 },
+      { start: { x: 2, y: 2 }, end: { x: 2, y: 4 } }
+    )).toEqual({ x: 2, y: 3 });
+  });
 });

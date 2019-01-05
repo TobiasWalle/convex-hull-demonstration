@@ -3,7 +3,7 @@ import { getAngleInDegrees } from '../algorithms/general.utils';
 import { Arc } from '../models/arc';
 import { Line } from '../models/line';
 import { Point } from '../models/point';
-import { isDegreeAngleBetween } from './geometry';
+import { isDegreeAngleBetween, isDegreeAngleBetweenClockwise } from './geometry';
 
 export function calculateIntersectionPointWithLine(line1: Line, line2: Line): Point | null {
   const point = {
@@ -65,9 +65,9 @@ export function calculateIntersectionPointWithArc(arc: Arc, line: Line): Point |
       x: line.start.x + lowerDistance * d.x,
       y: line.start.y + lowerDistance * d.y,
     };
-    if (pointIntersectsArc(lowerPoint, arc)) {
+    if (pointIntersectsArc(lowerPoint, arc) && pointIntersectsLine(lowerPoint, line)) {
       return lowerPoint;
-    } else if (pointIntersectsArc(upperPoint, arc)) {
+    } else if (pointIntersectsArc(upperPoint, arc) && pointIntersectsLine(upperPoint, line)) {
       return upperPoint;
     } else {
       return null;
@@ -75,7 +75,13 @@ export function calculateIntersectionPointWithArc(arc: Arc, line: Line): Point |
   }
 }
 
+function pointIntersectsLine(point: Point, line: Line): boolean {
+  const result = getAngleInDegrees(line.start, point) === getAngleInDegrees(line.start, line.end);
+  return result;
+}
+
 function pointIntersectsArc(point: Point, arc: Arc): boolean {
   const angle = getAngleInDegrees(arc, point);
-  return isDegreeAngleBetween(arc.startAngle, arc.endAngle, angle);
+  const result = isDegreeAngleBetweenClockwise(arc.startAngle, arc.endAngle, angle);
+  return result;
 }

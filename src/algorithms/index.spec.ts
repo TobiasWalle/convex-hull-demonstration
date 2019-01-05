@@ -1,11 +1,13 @@
 import { ShapeType } from '../models/shape';
-import { expectCircleAlgorithmToWorkWithCircleOutsideHull } from './circle-algorithm-test-utils';
+import {
+  expectCircleAlgorithmToWork,
+  expectCircleAlgorithmToWorkWith4CirclesOfTheSameSize,
+  expectCircleAlgorithmToWorkWithCircleOutsideHull
+} from './circle-algorithm-test-utils';
 import { algorithmsByType } from './index';
 import {
   expectPointAlgorithmToWorkWithComplexExample,
-  expectPointAlgorithmToWorkWithIntermediateExample
-} from './point-algorithm-test.utils';
-import {
+  expectPointAlgorithmToWorkWithIntermediateExample,
   expectPointAlgorithmToWorkWithSimpleExample
 } from './point-algorithm-test.utils';
 
@@ -31,8 +33,26 @@ describe('Algorithms', () => {
   describe('Circle', () => {
     Object.entries(algorithmsByType[ShapeType.Circle]).forEach(([key, Algorithm]) => {
       describe(key, () => {
-        it('should work', () => {
+        it('should work with two circles', () => {
+          return expectCircleAlgorithmToWork({
+            circles: [
+              { x: 10, y: 10, radius: 5 },
+              { x: 10, y: 30, radius: 5 },
+            ],
+            expectedArcs: [
+              { x: 10, y: 10, radius: 5, startAngle: 0, endAngle: 180 },
+              { x: 10, y: 30, radius: 5, startAngle: 180, endAngle: 0 },
+            ],
+            Alg: Algorithm
+          });
+        });
+
+        it('should work with circle outside hull', () => {
           return expectCircleAlgorithmToWorkWithCircleOutsideHull(Algorithm);
+        });
+
+        it('should work with 4 circles with the same size', () => {
+          return expectCircleAlgorithmToWorkWith4CirclesOfTheSameSize(Algorithm);
         });
       });
     });

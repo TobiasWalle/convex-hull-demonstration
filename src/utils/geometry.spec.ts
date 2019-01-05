@@ -1,4 +1,4 @@
-import { isBetweenPolarPhis, isDegreeAngleBetween } from './geometry';
+import { isBetweenPolarPhis, isDegreeAngleBetween, isDegreeAngleBetweenClockwise } from './geometry';
 
 describe('isBetweenPolarPhi', () => {
   it('should work', () => {
@@ -22,5 +22,16 @@ describe('isDegreeAngleBetween', () => {
     expect(isDegreeAngleBetween(360, 0, 100)).toBe(false);
     expect(isDegreeAngleBetween(200, 90, 0)).toBe(true);
     expect(isDegreeAngleBetween(90, 200, 0)).toBe(false);
+    expect(isDegreeAngleBetween(180, 0, 270)).toBe(true);
+  });
+});
+
+describe('isDegreeAngleBetweenClockwise', () => {
+  it('should work', () => {
+    expect(isDegreeAngleBetweenClockwise(0, 360, 100)).toBe(false);
+    expect(isDegreeAngleBetweenClockwise(360, 0, 100)).toBe(true);
+    expect(isDegreeAngleBetweenClockwise(200, 90, 0)).toBe(false);
+    expect(isDegreeAngleBetweenClockwise(90, 200, 0)).toBe(true);
+    expect(isDegreeAngleBetweenClockwise(180, 0, 270)).toBe(false);
   });
 });

@@ -4,7 +4,7 @@ import { COLORS } from '../models/colors';
 import { Line } from '../models/line';
 import { Point } from '../models/point';
 import { calculateArcs, calculateMiddlePoint, calculateUpperTangent, correctArcs, getArcPoints } from '../utils/arc';
-import { distanceBetween, isDegreeAngleBetween } from '../utils/geometry';
+import { distanceBetween, isDegreeAngleBetween, isDegreeAngleBetweenClockwise } from '../utils/geometry';
 import { calculateIntersectionPointWithArc, calculateIntersectionPointWithLine } from '../utils/intersection';
 import { AbstractAlgorithm } from './abstract-algorithm';
 import { getAngleInDegrees } from './general.utils';
@@ -59,7 +59,8 @@ export class IncrementalAlgorithm extends AbstractAlgorithm<Circle> {
       } else {
         result.delete(clockWiseArc);
         result.delete(counterClockwiseArc);
-        result.addAll(correctArcs(circle, counterClockwiseArc, clockWiseArc));
+        const correctedArcs = correctArcs(circle, counterClockwiseArc, clockWiseArc);
+        result.addAll(correctedArcs);
       }
     }
 
@@ -71,7 +72,7 @@ export class IncrementalAlgorithm extends AbstractAlgorithm<Circle> {
 }
 
 function circleAsArc(circle: Circle): Arc {
-  return { ...circle, startAngle: 0, endAngle: 360 };
+  return { ...circle, startAngle: 360, endAngle: 0 };
 }
 
 class ArcsStore {
@@ -108,7 +109,7 @@ class ArcsStore {
     const resultArcStartAngleFromCenter = getAngleInDegrees(pointInCh, resultArcPoints.start);
     const resultArcEndAngleFromCenter = getAngleInDegrees(pointInCh, resultArcPoints.end);
     console.log('IS BETWEEN?', resultArcStartAngleFromCenter, resultArcEndAngleFromCenter, angleToCircle);
-    if (resultArcStartAngleFromCenter === resultArcEndAngleFromCenter || isDegreeAngleBetween(resultArcStartAngleFromCenter, resultArcEndAngleFromCenter, angleToCircle)) {
+    if (resultArcStartAngleFromCenter === resultArcEndAngleFromCenter || isDegreeAngleBetweenClockwise(resultArcStartAngleFromCenter, resultArcEndAngleFromCenter, angleToCircle)) {
       console.log('Calculate intersection with arc');
       intersectionPoint = calculateIntersectionPointWithArc(resultArc, intersectionLine);
     } else if (this.arcs.length >= 2) {
