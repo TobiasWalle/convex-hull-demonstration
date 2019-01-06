@@ -53,17 +53,14 @@ function subtractInRange(value: number, valueToSubtract: number, maxValue: numbe
 }
 
 export function isDegreeAngleBetween(startAngle: number, endAngle: number, angle: number): boolean {
-  if (endAngle === 0) {
-    endAngle = 360;
-  }
-  if (endAngle < startAngle) {
-    angle += 360;
-    endAngle += 360;
-  }
-  return angle >= startAngle && angle <= endAngle;
+  return isDegreeAngleBetweenClockwise(endAngle, startAngle, angle);
 }
 
 export function isDegreeAngleBetweenClockwise(startAngle: number, endAngle: number, angle: number): boolean {
-  return isDegreeAngleBetween(endAngle, startAngle, angle);
+  if (startAngle >= endAngle) {
+    return angle <= startAngle && angle >= endAngle;
+  } else {
+    return !(angle > startAngle && angle < endAngle);
+  }
 }
 

@@ -22,7 +22,9 @@ export class IncrementalAlgorithm extends AbstractAlgorithm<Circle> {
 
     const pointInCh = circles[0];
     for (let i = 1; i < circles.length; i++) {
+      console.log(`--- ${i} ---`);
       const circle = circles[i];
+      console.log('circle', circle);
       const a: Arc | null = result.findArc(circle, pointInCh);
       console.log('arc', a);
       if (a == null) {
@@ -52,6 +54,8 @@ export class IncrementalAlgorithm extends AbstractAlgorithm<Circle> {
           result.delete(currentArc);
         }
       }
+      console.log('cw', clockWiseArc);
+      console.log('cc', counterClockwiseArc);
 
       if (a === clockWiseArc && a === counterClockwiseArc) {
         result.delete(a);
@@ -59,12 +63,16 @@ export class IncrementalAlgorithm extends AbstractAlgorithm<Circle> {
       } else {
         result.delete(clockWiseArc);
         result.delete(counterClockwiseArc);
+        if (i === 3) {
+          console.log('BREAK');
+        }
         const correctedArcs = correctArcs(circle, counterClockwiseArc, clockWiseArc);
         result.addAll(correctedArcs);
       }
+
+      console.log(result.arcs);
     }
 
-    console.log(result.arcs);
     return {
       arcs: result.arcs
     };
@@ -108,7 +116,6 @@ class ArcsStore {
     const resultArcPoints = getArcPoints(resultArc);
     const resultArcStartAngleFromCenter = getAngleInDegrees(pointInCh, resultArcPoints.start);
     const resultArcEndAngleFromCenter = getAngleInDegrees(pointInCh, resultArcPoints.end);
-    console.log('IS BETWEEN?', resultArcStartAngleFromCenter, resultArcEndAngleFromCenter, angleToCircle);
     if (resultArcStartAngleFromCenter === resultArcEndAngleFromCenter || isDegreeAngleBetweenClockwise(resultArcStartAngleFromCenter, resultArcEndAngleFromCenter, angleToCircle)) {
       console.log('Calculate intersection with arc');
       intersectionPoint = calculateIntersectionPointWithArc(resultArc, intersectionLine);
@@ -150,7 +157,6 @@ class ArcsStore {
           newIndex = this.arcs.length - (-newIndex % this.arcs.length);
         }
       }
-      console.log(newIndex, this.arcs.length);
       return this.arcs[newIndex];
     });
   }

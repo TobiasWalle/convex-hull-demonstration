@@ -19,10 +19,10 @@ export const ArcVisualization: React.FunctionComponent<ArcVisualizationProps> = 
     endAngle -= 0.01;
   }
 
-  const start = degreeToCartesian(x, y, radius, endAngle);
-  const end = degreeToCartesian(x, y, radius, startAngle);
+  const start = degreeToCartesian(x, y, radius, startAngle);
+  const end = degreeToCartesian(x, y, radius, endAngle);
 
-  const largeArcFlag = getAngleDiff(startAngle, endAngle) > 180 ? 1 : 0;
+  const largeArcFlag = getAngleDiff(endAngle, startAngle) > 180 ? 1 : 0;
 
   const d = [
     `M ${start.x} ${start.y}`,

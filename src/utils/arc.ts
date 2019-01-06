@@ -3,7 +3,7 @@ import { Arc } from '../models/arc';
 import { Circle } from '../models/circle';
 import { Line } from '../models/line';
 import { Point } from '../models/point';
-import { isDegreeAngleBetween, degreeToCartesian, isDegreeAngleBetweenClockwise } from './geometry';
+import { degreeToCartesian, isDegreeAngleBetweenClockwise } from './geometry';
 
 export function getArcPoints(arc: Arc): { start: Point, end: Point } {
   return {
@@ -57,27 +57,36 @@ function getClockwiseAngleDiff(a1: number, a2: number): number {
   }
 }
 
-export function calculateTangentsToCorrectArcs(counterClockWiseArc: Arc, clockWiseArc: Arc, circle: Circle) {
-  return {
-    ccToCircle: getTangentFunctionToCorrectArcs(counterClockWiseArc, clockWiseArc, circle)(counterClockWiseArc, circle),
-    circleToCw: getTangentFunctionToCorrectArcs(clockWiseArc, counterClockWiseArc, circle)(circle, clockWiseArc)
-  }
+export function calculateTangentsToCorrectArcs(counterClockWiseArc: Circle, clockWiseArc: Circle, circle: Circle) {
+  console.log('cc => circle');
+  const ccToCircle = getTangentFunctionToCorrectArcs(counterClockWiseArc, circle, clockWiseArc)(counterClockWiseArc, circle);
+  console.log('circle => c');
+  const circleToCw = getTangentFunctionToCorrectArcs(circle, clockWiseArc, counterClockWiseArc)(circle, clockWiseArc);
+  return { ccToCircle, circleToCw };
 }
 
-function getTangentFunctionToCorrectArcs(arc: Arc, otherArc: Arc, circle: Circle) {
-  const pointBetweenArcAndCircle = calculateMiddlePoint(arc, circle);
-  const angleToCircle = getAngleInDegrees(arc, circle);
-  const angleToOtherArc = getAngleInDegrees(pointBetweenArcAndCircle, otherArc);
-  const otherIsOnLeftSide = isDegreeAngleBetween(
-    getAngleInDegrees(pointBetweenArcAndCircle, arc),
-    getAngleInDegrees(pointBetweenArcAndCircle, circle),
-    angleToOtherArc
-  );
-  if (isDegreeAngleBetween(0.00001, 179.99999, angleToOtherArc) && !(isDegreeAngleBetween(270, 360, angleToCircle) && otherIsOnLeftSide)) {
-    return calculateLowerTangent;
-  } else {
+function getTangentFunctionToCorrectArcs(c1: Circle, c2: Circle, other: Circle) {
+  const angle = getAngleInDegrees(c1, c2);
+
+  console.log(angle);
+  if (isDegreeAngleBetweenClockwise(90, 270, angle)) {
+    console.log('U');
     return calculateUpperTangent;
+  } else {
+    console.log('L');
+    return calculateLowerTangent;
   }
+
+}
+
+function calculateSideOfPoint(line: Line, p: Point): number {
+  const d = (p.x - line.start.x) * (line.end.y - line.start.y) - (p.y - line.start.y) * (line.end.x - line.start.x);
+  if (d > 0) {
+    return 1;
+  } else if (d < 0) {
+    return -1;
+  }
+  return 0;
 }
 
 export function calculateMiddlePoint(...points: Point[]): Point {

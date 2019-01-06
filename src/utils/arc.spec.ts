@@ -1,5 +1,10 @@
 import { Point } from '../models/point';
-import { calculateArcs, correctArcs, getClockwiseAndCounterclockwisePointRelativeTo } from './arc';
+import {
+  calculateArcs,
+  calculateTangentsToCorrectArcs,
+  correctArcs,
+  getClockwiseAndCounterclockwisePointRelativeTo
+} from './arc';
 
 describe('calculateArcs', () => {
   it('should work with left/right', () => {
@@ -111,5 +116,247 @@ describe('getClockwiseAndCounterclockwiseArcRelativeTo', () => {
     test({ pivot: { x: 0, y: 0 }, c: { x: 10, y: 20 }, cw: { x: 10, y: 0 } });
     test({ pivot: { x: 10, y: 0 }, c: { x: 0, y: 10 }, cw: { x: 20, y: 10 } });
     test({ pivot: { x: 10, y: 10 }, c: { x: 10, y: 0 }, cw: { x: 0, y: 0 } });
+  });
+});
+
+describe('calculateTangentsToCorrectArcs', () => {
+  it('should work with top right corner', () => {
+    const counterClockWiseArc = {
+      x: 10,
+      y: 30,
+      radius: 5
+    };
+    const clockWiseArc = {
+      x: 30,
+      y: 10,
+      radius: 5
+    };
+    const circle = {
+      x: 30,
+      y: 30,
+      radius: 5
+    };
+
+    expect(calculateTangentsToCorrectArcs(counterClockWiseArc, clockWiseArc, circle)).toEqual({
+      ccToCircle: {
+        start: { x: 10, y: 35 },
+        end: { x: 30, y: 35 }
+      },
+      circleToCw: {
+        start: { x: 35, y: 30 },
+        end: { x: 35, y: 10 }
+      },
+    });
+  });
+
+  it('should work with bottom right corner', () => {
+    const counterClockWiseArc = {
+      x: 30,
+      y: 30,
+      radius: 5
+    };
+    const clockWiseArc = {
+      x: 10,
+      y: 10,
+      radius: 5
+    };
+    const circle = {
+      x: 30,
+      y: 10,
+      radius: 5
+    };
+
+    expect(calculateTangentsToCorrectArcs(counterClockWiseArc, clockWiseArc, circle)).toEqual({
+      ccToCircle: {
+        start: { x: 35, y: 30 },
+        end: { x: 35, y: 10 }
+      },
+      circleToCw: {
+        start: { x: 30, y: 5 },
+        end: { x: 10, y: 5 }
+      },
+    });
+  });
+
+  it('should work with bottom left corner', () => {
+    const counterClockWiseArc = {
+      x: 30,
+      y: 10,
+      radius: 5
+    };
+    const clockWiseArc = {
+      x: 10,
+      y: 30,
+      radius: 5
+    };
+    const circle = {
+      x: 10,
+      y: 10,
+      radius: 5
+    };
+
+    expect(calculateTangentsToCorrectArcs(counterClockWiseArc, clockWiseArc, circle)).toEqual({
+      ccToCircle: {
+        start: { x: 30, y: 5 },
+        end: { x: 10, y: 5 }
+      },
+      circleToCw: {
+        start: { x: 5, y: 10 },
+        end: { x: 5, y: 30 }
+      },
+    });
+  });
+
+  it('should work with top left corner', () => {
+    const counterClockWiseArc = {
+      x: 10,
+      y: 10,
+      radius: 5
+    };
+    const clockWiseArc = {
+      x: 30,
+      y: 30,
+      radius: 5
+    };
+    const circle = {
+      x: 10,
+      y: 30,
+      radius: 5
+    };
+
+    expect(calculateTangentsToCorrectArcs(counterClockWiseArc, clockWiseArc, circle)).toEqual({
+      ccToCircle: {
+        start: { x: 5, y: 10 },
+        end: { x: 5, y: 30 }
+      },
+      circleToCw: {
+        start: { x: 10, y: 35 },
+        end: { x: 30, y: 35 }
+      },
+    });
+  });
+
+  it('should work with right side', () => {
+    const counterClockWiseArc = {
+      x: 10,
+      y: 30,
+      radius: 5
+    };
+    const clockWiseArc = {
+      x: 10,
+      y: 10,
+      radius: 5
+    };
+    const circle = {
+      x: 20,
+      y: 20,
+      radius: 5
+    };
+
+    const result = calculateTangentsToCorrectArcs(counterClockWiseArc, clockWiseArc, circle);
+    console.log(result);
+    expect(result).toBeDeepCloseTo({
+      ccToCircle: {
+        start: { x: 13, y: 33 },
+        end: { x: 23, y: 23 }
+      },
+      circleToCw: {
+        start: { x: 23, y: 16 },
+        end: { x: 13, y: 6 }
+      },
+    }, 0);
+  });
+
+  it('should work with bottom side', () => {
+    const counterClockWiseArc = {
+      x: 30,
+      y: 20,
+      radius: 5
+    };
+    const clockWiseArc = {
+      x: 10,
+      y: 20,
+      radius: 5
+    };
+    const circle = {
+      x: 20,
+      y: 10,
+      radius: 5
+    };
+
+    const result = calculateTangentsToCorrectArcs(counterClockWiseArc, clockWiseArc, circle);
+    console.log(result);
+    expect(result).toBeDeepCloseTo({
+      ccToCircle: {
+        start: { x: 33, y: 16 },
+        end: { x: 23, y: 6 }
+      },
+      circleToCw: {
+        start: { x: 16, y: 6 },
+        end: { x: 6, y: 16 }
+      },
+    }, 0);
+  });
+
+  it('should work with left side', () => {
+    const counterClockWiseArc = {
+      x: 20,
+      y: 10,
+      radius: 5
+    };
+    const clockWiseArc = {
+      x: 20,
+      y: 30,
+      radius: 5
+    };
+    const circle = {
+      x: 10,
+      y: 20,
+      radius: 5
+    };
+
+    const result = calculateTangentsToCorrectArcs(counterClockWiseArc, clockWiseArc, circle);
+    console.log(result);
+    expect(result).toBeDeepCloseTo({
+      ccToCircle: {
+        start: { x: 16, y: 6 },
+        end: { x: 6, y: 16 }
+      },
+      circleToCw: {
+        start: { x: 6, y: 23 },
+        end: { x: 16, y: 33 }
+      },
+    }, 0);
+  });
+
+  it('should work with top side', () => {
+    const counterClockWiseArc = {
+      x: 10,
+      y: 10,
+      radius: 5
+    };
+    const clockWiseArc = {
+      x: 30,
+      y: 10,
+      radius: 5
+    };
+    const circle = {
+      x: 20,
+      y: 20,
+      radius: 5
+    };
+
+    const result = calculateTangentsToCorrectArcs(counterClockWiseArc, clockWiseArc, circle);
+    console.log(result);
+    expect(result).toBeDeepCloseTo({
+      ccToCircle: {
+        start: { x: 6, y: 13 },
+        end: { x: 16, y: 23 }
+      },
+      circleToCw: {
+        start: { x: 23, y: 23 },
+        end: { x: 33, y: 13 }
+      },
+    }, 0);
   });
 });

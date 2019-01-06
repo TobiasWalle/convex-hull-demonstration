@@ -33,5 +33,8 @@ describe('isDegreeAngleBetweenClockwise', () => {
     expect(isDegreeAngleBetweenClockwise(200, 90, 0)).toBe(false);
     expect(isDegreeAngleBetweenClockwise(90, 200, 0)).toBe(true);
     expect(isDegreeAngleBetweenClockwise(180, 0, 270)).toBe(false);
+    expect(isDegreeAngleBetweenClockwise(90, 270, 315)).toBe(true);
+    expect(isDegreeAngleBetweenClockwise(90, 270, 90)).toBe(true);
+    expect(isDegreeAngleBetweenClockwise(90, 270, 270)).toBe(true);
   });
 });

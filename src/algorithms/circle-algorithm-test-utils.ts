@@ -10,9 +10,9 @@ export async function expectCircleAlgorithmToWorkWithCircleOutsideHull(Alg: Abst
     { x: 70, y: 50, radius: 10 }
   ];
   const expectedArcs: Arc[] = [
-    { x: 40, y: 20, radius: 15, startAngle: 228, endAngle: 308 },
-    { x: 10, y: 60, radius: 5, startAngle: 75, endAngle: 228 },
-    { x: 70, y: 50, radius: 10, startAngle: 308, endAngle: 75 },
+    { x: 40, y: 20, radius: 15, startAngle: 321, endAngle: 205 },
+    { x: 10, y: 60, radius: 5, startAngle: 205, endAngle: 85 },
+    { x: 70, y: 50, radius: 10, startAngle: 85, endAngle: 321 },
   ];
 
   const result = await initAlgorithmnForTesting(Alg).calculateConvexHull(circles);
@@ -28,10 +28,10 @@ export async function expectCircleAlgorithmToWorkWith4CirclesOfTheSameSize(Alg: 
     { x: 30, y: 30, radius: 5 },
   ];
   const expectedArcs: Arc[] = [
+    { x: 30, y: 10, radius: 5, startAngle: 0, endAngle: 270 },
     { x: 10, y: 10, radius: 5, startAngle: 270, endAngle: 180 },
     { x: 10, y: 30, radius: 5, startAngle: 180, endAngle: 90 },
     { x: 30, y: 30, radius: 5, startAngle: 90, endAngle: 0 },
-    { x: 30, y: 10, radius: 5, startAngle: 0, endAngle: 270 },
   ];
 
   const result = await initAlgorithmnForTesting(Alg).calculateConvexHull(circles);
